@@ -31,6 +31,7 @@ services:
     restart: always
     ports:
       - "5432:5432"
+
   # Servicio de CloudBeaver (interfaz gráfica para la BD)
   cloudbeaver:
     image: dbeaver/cloudbeaver
@@ -44,8 +45,8 @@ services:
     restart: always
 
 volumes:
-  dbeaver_data:
   database_data:
+  dbeaver_data:
 
 networks:
   web_network:

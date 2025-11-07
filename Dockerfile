@@ -31,7 +31,7 @@ RUN sed -ri -e "s!/var/www/html!${APACHE_DOCUMENT_ROOT}!g" /etc/apache2/sites-av
     && sed -ri -e "s!/var/www/!${APACHE_DOCUMENT_ROOT}!g" /etc/apache2/apache2.conf
 
 # Copiamos apache2.conf modificado para AllowOverride All (opcional)
-# COPY config/apache2/apache2.conf /etc/apache2/apache2.conf
+COPY config/apache2/apache2.conf /etc/apache2/apache2.conf
 
 # Copiamos la aplicación
 COPY . /var/www/html/
