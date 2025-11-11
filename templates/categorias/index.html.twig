@@ -1,20 +1,29 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello CategoriasController!{% endblock %}
+{% block title %}Categorías{% endblock %}
 
 {% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
+<h1 style="text-align: center; margin-bottom: 2rem;">Categorías de videojuegos</h1>
 
-<div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
-
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code>/home/aortben/proyecto/src/Controller/CategoriasController.php</code></li>
-        <li>Your template at <code>/home/aortben/proyecto/templates/categorias/index.html.twig</code></li>
-    </ul>
+<div style="display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center;">
+    {% for categoria in categorias %}
+        <div style="
+            background-color: #f0f0f0;
+            border-radius: 8px;
+            padding: 1rem 2rem;
+            min-width: 150px;
+            text-align: center;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+            transition: transform 0.2s, box-shadow 0.2s;
+        "
+        onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.25)';"
+        onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 2px 6px rgba(0,0,0,0.15)';"
+        >
+            {{ categoria.categoria }}
+        </div>
+    {% else %}
+        <p>No hay categorías todavía.</p>
+    {% endfor %}
 </div>
 {% endblock %}
+

@@ -8,6 +8,9 @@
 /public/bundles/
 /var/
 /vendor/
+bfg.jar
+Tienda_Symfony.git/
+*.deb
 ###< symfony/framework-bundle ###
 
 ###> phpunit/phpunit ###
