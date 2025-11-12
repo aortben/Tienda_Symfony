@@ -3,14 +3,13 @@
 {% block title %}Log in{% endblock %}
 
 {% block body %}
+{% if app.user %}
+    {# Usuario ya logeado, redirigir al home #}
+    <script>
+        window.location.href = "{{ path('app_home') }}";
+    </script>
+{% else %}
 <div style="max-width: 400px; margin: 3rem auto; padding: 2rem; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-
-    {% if app.user %}
-        <div style="text-align: center;">
-            You are logged in as <strong>{{ app.user.userIdentifier }}</strong>.<br>
-            <a href="{{ path('logout') }}" style="color: #fff; background-color: #dc3545; padding: 0.4rem 0.8rem; border-radius: 4px; text-decoration: none;">Logout</a>
-        </div>
-    {% endif %}
 
     <h2 style="text-align: center; margin-bottom: 1.5rem;">Please sign in</h2>
 
@@ -34,5 +33,6 @@
         </button>
     </form>
 </div>
+{% endif %}
 {% endblock %}
 

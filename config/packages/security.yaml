@@ -23,10 +23,10 @@ security:
                 login_path: login
                 check_path: login
                 enable_csrf: true
-                default_target_path: app_categorias
+                default_target_path: app_home
                 always_use_default_target_path: true
             logout:
-                path: logout
+                path: /logout
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#the-firewall
             # switch_user: true  # descomentar si quieres impersonar usuarios
@@ -34,8 +34,8 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
-        # - { path: ^/admin, roles: ROLE_ADMIN }
-        # - { path: ^/profile, roles: ROLE_USER }
+        - { path: ^/admin, roles: ROLE_ADMIN }
+        - { path: ^/profile, roles: ROLE_USER }
 
 when@test:
     security:

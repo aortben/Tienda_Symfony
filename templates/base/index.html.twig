@@ -1,20 +1,22 @@
-{% extends 'base.html.twig' %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Mi Tienda{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-{% block title %}Hello BaseController!{% endblock %}
+    {# Bootstrap CSS desde CDN #}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-pQdf3P+Mht3jF27ABP+V+DlCvJh4DJ+F03I5hbhkFeWw6N1U3pzC0yrF0KKJ+onJ" crossorigin="anonymous">
 
-{% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
+    {% block stylesheets %}{% endblock %}
+</head>
+<body>
+    {% block body %}{% endblock %}
 
-<div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
-
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code>/home/aortben/proyecto/src/Controller/BaseController.php</code></li>
-        <li>Your template at <code>/home/aortben/proyecto/templates/base/index.html.twig</code></li>
-    </ul>
-</div>
-{% endblock %}
+    {# Bootstrap JS y Popper (opcional) #}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-lZN37f6Qf3r1Yh42OS0dRk67pR2PzO6FhrDJkKZ0xQ6pZ5gC8fh3j8I4a2QX1pJv" crossorigin="anonymous"></script>
+    {% block javascripts %}{% endblock %}
+</body>
+</html>
