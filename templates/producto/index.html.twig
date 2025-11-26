@@ -55,10 +55,20 @@
                     <div class="card text-center" style="min-width: 180px; max-width: 250px; transition: transform 0.2s, box-shadow 0.2s;">
                         <div class="card-body">
                             <h5 class="card-title">{{ producto.name }}</h5>
+
                             <p class="card-text"><strong>{{ producto.price }} €</strong></p>
+
                             {% if producto.categoria is defined %}
                                 <p class="text-muted" style="font-size:0.9rem;">{{ producto.categoria.categoria }}</p>
                             {% endif %}
+                            
+                            <form action="{{ path('anadir_producto', { id: producto.id }) }}" method="post" class="mt-2">
+                                <div class="input-group">
+                                    <input type="number" name="cantidad" class="form-control" value="1" min="1">
+                                    <button type="submit" class="btn btn-success">Comprar</button>
+                                </div>
+                            </form>
+
                         </div>
                     </div>
                 {% endfor %}
