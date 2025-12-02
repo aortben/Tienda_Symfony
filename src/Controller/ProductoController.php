@@ -16,7 +16,7 @@ final class ProductoController extends AbstractController
     {
         $productos = $productoRepository->findAll();
 
-        return $this->render('producto/index.html.twig', [
+        return $this->render('producto.html.twig', [
             'productos' => $productos,
             'categoria' => null, // para que index.html.twig funcione también sin categoría
         ]);
@@ -28,7 +28,7 @@ final class ProductoController extends AbstractController
     {
         $productos = $categoria->getProductos();
 
-        return $this->render('producto/index.html.twig', [
+        return $this->render('producto.html.twig', [
             'categoria' => $categoria,
             'productos' => $productos,
         ]);
