@@ -34,8 +34,10 @@ class CestaCompra {
            $this->unidades[$posicion] += $unidades;
            
        }else{
-           $this->productos[] = [$codigo => $producto];
-           $this->unidades[] = [$unidades];
+           $productos[$codigo] = $producto;
+           $unidades[] = $unidad;
+           //$this->productos[] = [$codigo => $producto];
+           //$this->unidades[] = $unidades;
        }
       
        $this->guardar_cesta();

@@ -58,6 +58,11 @@ final class BaseController extends AbstractController
         
         // Llamada a la cesta
         $cesta->cargar_productos($productos,$unidades);
+        $objetos_producto = array_values($productos);
+        
+        $categoria_id = $objetos_producto[0] -> getCategoria() -> getId();
+        
+                
         return $this->redirectToRoute("mostrar_cesta");
     }
     
