@@ -34,18 +34,26 @@ final class ProductoController extends AbstractController
         ]);
     }
     
-   #[Route('/anadir', name: 'anadir')]
-   public function anadir_productos(EntityManagerInterface $em, Request $request, CestaCompra $cesta) {
-       //Recogemos los valores de la peticion post
-       $productos_ids = $request->request->get('productos_id');
-       $unidades = $request->request->get{'unidades'};
-       
-       $productos = $em->getRepository{Producto::class}->findProductosById($producto_ids);
-       //Llamamos cargar_productos para añadir a la cesta los productos seleccionados junto con sus unidades
-       $cesta->cargar_productos($productos, $unidades);
-       
-   }
-    
+#[Route('/anadir', name: 'anadir')]
+public function anadir_productos(
+    EntityManagerInterface $em,
+    Request $request,
+    CestaCompra $cesta
+) {
+    // Recogemos los valores del POST
+    $productos_ids = $request->request->get('productos_id');
+    $unidades = $request->request->get('unidades');
+
+    // Recuperamos los productos desde el repositorio
+    $productos = $em->getRepository(Producto::class)->findProductosById($productos_ids);
+
+    // Añadimos los productos a la cesta
+    $cesta->cargar_productos($productos, $unidades);
+
+    // IMPORTANTE: devolver una respuesta
+    return $this->redirectToRoute('carrito'); // o la ruta que corresponda
+}
+
     
     
 }

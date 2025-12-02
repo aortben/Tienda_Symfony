@@ -26,40 +26,37 @@ class CestaCompra {
    //Recibe como parametro el objeto Producto con su unidad
    public function cargar_producto($producto, $unidades) {
        $this->cargar_cesta();
-       $cesta = $sesion->get('cesta');
+       $sesion = $this->requestStack->getSession();
        $codigo = $producto->getCode();
-       if(array_key_exists($codigo ,$this->productos) {
-           $codigo_productos array_keys($this->productos);
+       if(array_key_exists($codigo, $this->productos)) {
+           $codigo_productos = array_keys($this->productos);
            $posicion = array_search($codigo, $codigo_productos);
-           $unidades($posicion)=+unidad;)
-           
+           $this->unidades[$posicion] += $unidades;
            
        }else{
-           $productos [] = ['$codigo' => $producto];
-           $unidades [] = [$unidad];
+           $this->productos[] = [$codigo => $producto];
+           $this->unidades[] = [$unidades];
        }
       
-       $this->guarda_cesta();
+       $this->guardar_cesta();
    }
    
    protected function cargar_cesta() {
        $sesion = $this->requestStack->getSession();
-       if($sesion->has("productos") && $sesion->("unidades")){
+       if($sesion->has("productos") && $sesion->has("unidades")){
            $this->productos = $sesion->get("productos");
            $this->unidades = $sesion->get("unidades");
            
-   } else {
-       $this->productos = [];
-       $this->unidades = [];
+       } else {
+           $this->productos = [];
+           $this->unidades = [];
+       }
    }
-   
-   $carrito = $sesion->get('carrito');
-}
 
    protected function guardar_cesta() {
        $sesion = $this->requestStack->getSession();
-       $sesion->set($this->productos);
-       $sesion->set($this->unidades);
+       $sesion->set("productos", $this->productos);
+       $sesion->set("unidades", $this->unidades);
    }
 }
 
