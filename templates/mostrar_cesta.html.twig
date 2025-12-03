@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Cesta de la compra{% endblock %}
+
+{% block body %}
+    <h1>Cesta de la compra</h1>
+
+    {% if cesta is empty %}
+        <p>La cesta está vacía.</p>
+    {% else %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th>Cantidad</th>
+                    <th>Precio Unitario</th>
+                    <th>Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in cesta %}
+                    <tr>
+                        <td>{{ item.producto.nombre }}</td>
+                        <td>{{ item.cantidad }}</td>
+                        <td>{{ item.producto.precio | number_format(2, ',', '.') }} €</td>
+                        <td>{{ (item.producto.precio * item.cantidad) | number_format(2, ',', '.') }} €</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <h3>Total: {{ total | number_format(2, ',', '.') }} €</h3>
+
+        <a href="{{ path('checkout') }}">Proceder al pago</a>
+    {% endif %}
+{% endblock %}
