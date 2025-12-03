@@ -43,6 +43,7 @@ class CestaCompra {
        $this->guardar_cesta();
    }
    
+   //Recuperamos el array de productos y unidedades de la sesion.
    protected function cargar_cesta() {
        $sesion = $this->requestStack->getSession();
        if($sesion->has("productos") && $sesion->has("unidades")){
