@@ -22,7 +22,7 @@ final class BaseController extends AbstractController
     public function mostrar_categorias (EntityManagerInterface $doctrine): Response
     {
         $categorias = $doctrine->getRepository (Categoria::class) ->findAll();
-        return $this->render('categorias/mostrar_categorias.html.twig', [
+        return $this->render('categoria.html.twig', [
             'categorias' => $categorias,
         ]);
         
@@ -33,7 +33,7 @@ final class BaseController extends AbstractController
     {
         $categoria = $doctrine ->getRepository(Categoria::class)->find($id);
         $productos = $categoria->getProductos();
-        return $this->render('productos/mostrar_productos.html.twig', [
+        return $this->render('producto.html.twig', [
                     'productos' => $productos,
         ]);
         
@@ -43,7 +43,7 @@ final class BaseController extends AbstractController
     public function mostrar_detalles(EntityManagerInterface $doctrine, int $id): Response
     {
         $producto = $doctrine->getRepository(Producto::class)->find($id);
-        return $this->render('productos/mostrar_detalles.html.twig', [
+        return $this->render('/mostrar_detalles.html.twig', [
             'producto' => $producto,
         ]);
     }
@@ -68,7 +68,7 @@ final class BaseController extends AbstractController
     
     #[Route('/cesta', name: 'mostrar_cesta')]
     public function mostrar_cesta(CestaCompra $cesta): Response {
-        return $this->render('cesta/mostrar_cesta.html.twig', [
+        return $this->render('mostrar_cesta.html.twig', [
             'productos' => $cesta->obtener_productos(),
         ]);
     }
