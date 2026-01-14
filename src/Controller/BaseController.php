@@ -6,70 +6,87 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Doctrine\Persistence\ManagerRegistry;
-use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\HttpFoundation\Request;
-use App\Service\CestaCompra;
+#Entidades
 use App\Entity\Categoria;
 use App\Entity\Producto;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
-
+use App\Services\CestaCompra;
 
 #[IsGranted('ROLE_USER')]
 final class BaseController extends AbstractController
 {
-    
     #[Route('/categorias', name: 'categorias')]
-    public function mostrar_categorias (EntityManagerInterface $doctrine): Response
+    public function mostrar_categorias(ManagerRegistry $doctrine): Response
     {
-        $categorias = $doctrine->getRepository (Categoria::class) ->findAll();
-        return $this->render('categoria.html.twig', [
+        $categorias = $doctrine->getRepository(Categoria::class)->findAll();
+        return $this->render('categorias/mostrar_categorias.html.twig', [
             'categorias' => $categorias,
         ]);
-        
     }
     
-    #[Route('productos/{id}', name: 'productos')]
-    public function mostrar_productos (EntityManagerInterface $doctrine, int $id): Response
+    #[Route('/productos/{categoria}', name: 'productos')]
+    public function mostrar_productos(ManagerRegistry $em, int $categoria): Response
     {
-        $categoria = $doctrine ->getRepository(Categoria::class)->find($id);
-        $productos = $categoria->getProductos();
-        return $this->render('producto.html.twig', [
-                    'productos' => $productos,
-        ]);
-        
-        
-    }
-    #[Route('productos/{id}/detalles', name: 'detalles')]
-    public function mostrar_detalles(EntityManagerInterface $doctrine, int $id): Response
-    {
-        $producto = $doctrine->getRepository(Producto::class)->find($id);
-        return $this->render('/mostrar_detalles.html.twig', [
-            'producto' => $producto,
+        $categoriaObjeto = $em->getRepository(Categoria::class)->find($categoria);
+
+        // Si no existe la categoría → error controlado
+        if (!$categoriaObjeto) {
+            throw $this->createNotFoundException("La categoría no existe");
+        }
+
+        $productos = $categoriaObjeto->getProductos();
+
+        return $this->render('productos/mostrar_productos.html.twig', [
+            'productos' => $productos,
         ]);
     }
     
+    //POR TERMINAR ESTE METODO, ME FALTA AÑADIR  
     #[Route('/anadir', name: 'anadir')]
-    public function anadir_productos(EntityManagerInterface $em, Request $request, CestaCompra $cesta): Response{
-        // Recogemos los datos de entrada
-        $productos_id = $request->request->get("producto_id");
-        $unidades = $request->request->get("unidades");
-        // Obtenemos un array de objetos Producto, a partir de sus id
-        $productos = $em->getRepository(Producto::class)->findProductsById($productos_id);
+    public function anadir_productos(ManagerRegistry $em, Request $request, CestaCompra $cesta): Response
+    {
+        $productos_id = $request->request->all("productos_id");
+        $unidades = $request->request->all("unidades");
         
-        // Llamada a la cesta
-        $cesta->cargar_productos($productos,$unidades);
+        
+        // Obtener array de productos
+        $productos = $em->getRepository(Producto::class)->findBy(['id' => $productos_id]);
+        $cesta->cargar_productos($productos, $unidades);
+
+        // Convertir array asociativo en array indexado
         $objetos_producto = array_values($productos);
-        
-        $categoria_id = $objetos_producto[0] -> getCategoria() -> getId();
-        
-                
-        return $this->redirectToRoute("mostrar_cesta");
-    }
-    
-    #[Route('/cesta', name: 'mostrar_cesta')]
-    public function mostrar_cesta(CestaCompra $cesta): Response {
-        return $this->render('mostrar_cesta.html.twig', [
-            'productos' => $cesta->obtener_productos(),
+
+        // Obtener ID de categoría del producto
+        $categoria_id = $objetos_producto[0]->getCategoria()->getId();
+
+        return $this->redirectToRoute("productos", [
+            'categoria' => $categoria_id
         ]);
     }
+    
+    #[Route('/cesta', name: 'cesta')]
+    public function cesta(CestaCompra $cesta): Response
+    {
+        return $this->render('cesta/mostrar_cesta.html.twig', [
+            'productos' => $cesta->get_productos(),
+            'unidades'  => $cesta->get_unidades(),
+        ]);
+    }
+    
+    #METODO PARA ACTUALIZAR LA CESTA
+    #[Route('/eliminar', name: 'eliminar')]
+    public function eliminar(Request $request, CestaCompra $cesta)
+    {   
+        //Eliminamos la cantidad
+        $producto_id = $request->request->get("productos_id");
+        $unidades = $request->request->get("unidades");
+        
+        $cesta->eliminar_producto($producto_id, $unidades);
+
+        return $this->redirectToRoute('cesta');
+    }
+
+    
+    
 }

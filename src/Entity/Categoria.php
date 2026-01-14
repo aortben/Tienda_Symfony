@@ -15,8 +15,11 @@ class Categoria
     #[ORM\Column]
     private ?int $id = null;
 
+    #[ORM\Column(length: 6)]
+    private ?string $codigo = null;
+
     #[ORM\Column(length: 255)]
-    private ?string $categoria = null;
+    private ?string $nombre = null;
 
     /**
      * @var Collection<int, Producto>
@@ -34,14 +37,26 @@ class Categoria
         return $this->id;
     }
 
-    public function getCategoria(): ?string
+    public function getCodigo(): ?string
     {
-        return $this->categoria;
+        return $this->codigo;
     }
 
-    public function setCategoria(string $categoria): static
+    public function setCodigo(string $codigo): static
     {
-        $this->categoria = $categoria;
+        $this->codigo = $codigo;
+
+        return $this;
+    }
+
+    public function getNombre(): ?string
+    {
+        return $this->nombre;
+    }
+
+    public function setNombre(string $nombre): static
+    {
+        $this->nombre = $nombre;
 
         return $this;
     }

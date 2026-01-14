@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\ProductoRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ProductoRepository::class)]
@@ -13,11 +14,20 @@ class Producto
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $name = null;
+    #[ORM\Column(type: Types::FLOAT, precision: 10, scale: 2)]
+    private ?float $precio = null;
 
-    #[ORM\Column(type: 'decimal', precision: 10, scale: 2)]
-    private ?float $price = 0.0;
+    #[ORM\Column(length: 6)]
+    private ?string $codigo = null;
+
+    #[ORM\Column(length: 255)]
+    private ?string $nombre = null;
+
+    #[ORM\Column(length: 50, nullable: true)]
+    private ?string $nombreCorto = null;
+
+    #[ORM\Column(type: Types::TEXT, length: 6144)]
+    private ?string $descripcion = null;
 
     #[ORM\ManyToOne(inversedBy: 'productos')]
     #[ORM\JoinColumn(nullable: false)]
@@ -28,25 +38,63 @@ class Producto
         return $this->id;
     }
 
-    public function getName(): ?string
+    public function getPrecio(): ?float
     {
-        return $this->name;
+        return $this->precio;
     }
 
-    public function setName(string $name): static
+    public function setPrecio(float $precio): static
     {
-        $this->name = $name;
+        $this->precio = $precio;
+
         return $this;
     }
 
-    public function getPrice(): ?float
+    public function getCodigo(): ?string
     {
-        return $this->price;
+        return $this->codigo;
     }
 
-    public function setPrice(float $price): static
+    public function setCodigo(string $codigo): static
     {
-        $this->price = $price;
+        $this->codigo = $codigo;
+
+        return $this;
+    }
+
+    public function getNombre(): ?string
+    {
+        return $this->nombre;
+    }
+
+    public function setNombre(string $nombre): static
+    {
+        $this->nombre = $nombre;
+
+        return $this;
+    }
+
+    public function getNombreCorto(): ?string
+    {
+        return $this->nombreCorto;
+    }
+
+    public function setNombreCorto(?string $nombreCorto): static
+    {
+        $this->nombreCorto = $nombreCorto;
+
+        return $this;
+    }
+
+    public function getDescripcion(): ?string
+    {
+        return $this->descripcion;
+    }
+
+    public function setDescripcion(string $descripcion): static
+    {
+        $this->descripcion = $descripcion;
+
         return $this;
     }
 
@@ -58,6 +106,7 @@ class Producto
     public function setCategoria(?Categoria $categoria): static
     {
         $this->categoria = $categoria;
+
         return $this;
     }
 }

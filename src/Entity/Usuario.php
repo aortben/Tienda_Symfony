@@ -3,14 +3,14 @@
 namespace App\Entity;
 
 use App\Repository\UsuarioRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: UsuarioRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_LOGIN', fields: ['login'])]
-#[UniqueEntity(fields: ['login'], message: 'There is already an account with this login')]
 class Usuario implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
@@ -36,11 +36,19 @@ class Usuario implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255)]
     private ?string $email = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $tlf = null;
+    #[ORM\Column(length: 20, nullable: true)]
+    private ?string $phone = null;
 
-    #[ORM\Column]
-    private bool $isVerified = false;
+    /**
+     * @var Collection<int, PEedido>
+     */
+    #[ORM\OneToMany(targetEntity: Pedido::class, mappedBy: 'usuario')]
+    private Collection $pedidos;
+
+    public function __construct()
+    {
+        $this->pedidos = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -135,38 +143,44 @@ class Usuario implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getTlf(): ?string
+    public function getPhone(): ?string
     {
-        return $this->tlf;
+        return $this->phone;
     }
 
-    public function setTlf(string $tlf): static
+    public function setPhone(?string $phone): static
     {
-        $this->tlf = $tlf;
+        $this->phone = $phone;
 
         return $this;
     }
 
-    public function getReturn(): ?string
+    /**
+     * @return Collection<int, PEedido>
+     */
+    public function getPEedidos(): Collection
     {
-        return $this->return;
+        return $this->pEedidos;
     }
 
-    public function setReturn(string $return): static
+    public function addPEedido(PEedido $pEedido): static
     {
-        $this->return = $return;
+        if (!$this->pEedidos->contains($pEedido)) {
+            $this->pEedidos->add($pEedido);
+            $pEedido->setUsuario($this);
+        }
 
         return $this;
     }
 
-    public function isVerified(): bool
+    public function removePEedido(PEedido $pEedido): static
     {
-        return $this->isVerified;
-    }
-
-    public function setIsVerified(bool $isVerified): static
-    {
-        $this->isVerified = $isVerified;
+        if ($this->pEedidos->removeElement($pEedido)) {
+            // set the owning side to null (unless already changed)
+            if ($pEedido->getUsuario() === $this) {
+                $pEedido->setUsuario(null);
+            }
+        }
 
         return $this;
     }

@@ -1,65 +1,108 @@
 <?php
 
 namespace App\Services;
-use App\Entity\Producto;
+
 use Symfony\Component\HttpFoundation\RequestStack;
+use App\Entity\Producto;
 
-class CestaCompra { 
+class CestaCompra {
     
-   protected $productos;
-   protected $unidades;
-   
-   protected $requestStack;
-            
-   public function __construct(RequestStack $requestStack) {
-    $this->requestStack = $requestStack;   
-   }
-   
-   public function cargar_productos($productos, $unidades) {
-       for($i = 0;$i<count($productos);$i++) {
-           if($unidades[$i] != 0) {
-               $this->cargar_producto($productos[$i],$unidades[$i]);
-               
-           }
-       }
-   }
-   //Recibe como parametro el objeto Producto con su unidad
-   public function cargar_producto($producto, $unidades) {
-       $this->cargar_cesta();
-       $sesion = $this->requestStack->getSession();
-       $codigo = $producto->getCode();
-       if(array_key_exists($codigo, $this->productos)) {
-           $codigo_productos = array_keys($this->productos);
-           $posicion = array_search($codigo, $codigo_productos);
-           $this->unidades[$posicion] += $unidades;
-           
-       }else{
-           $productos[$codigo] = $producto;
-           $unidades[] = $unidad;
-           //$this->productos[] = [$codigo => $producto];
-           //$this->unidades[] = $unidades;
-       }
-      
-       $this->guardar_cesta();
-   }
-   
-   //Recuperamos el array de productos y unidedades de la sesion.
-   protected function cargar_cesta() {
-       $sesion = $this->requestStack->getSession();
-       if($sesion->has("productos") && $sesion->has("unidades")){
-           $this->productos = $sesion->get("productos");
-           $this->unidades = $sesion->get("unidades");
-           
-       } else {
-           $this->productos = [];
-           $this->unidades = [];
-       }
-   }
+    protected $requestStack;
+    protected $productos = [];
+    protected $unidades = [];
 
-   protected function guardar_cesta() {
-       $sesion = $this->requestStack->getSession();
-       $sesion->set("productos", $this->productos);
-       $sesion->set("unidades", $this->unidades);
-   }
+    public function __construct(RequestStack $requestStack) {
+        $this->requestStack = $requestStack;
+    }
+
+    // Cargar varios productos, recibe como los parametros los productos y unidades
+    public function cargar_productos(array $productos, array $unidades) {
+        $this->cargar_cesta();
+        for ($i = 0; $i < count($productos); $i++) {
+            if ($unidades[$i] != 0) {
+                $this->cargar_producto($productos[$i], $unidades[$i]);
+            }
+        }
+    }
+
+    // Cargar un producto en la cesta
+    public function cargar_producto(Producto $producto, int $unidad){ 
+    $codigo = $producto->getCodigo();
+        if(array_key_exists($codigo, $this->productos)){
+            $this->unidades[$codigo] += $unidad;
+        } else if($unidad != 0) {
+            $this->productos[$codigo] = $producto;
+            $this->unidades[$codigo] = $unidad;
+        }
+
+        $this->guardar_cesta();
+    }
+    
+    // Actualizar unidades en la cesta (si llega a 0 se elimina)
+    /*public function actualizar_producto(string $codigo, int $unidad) {
+        $this->cargar_cesta();
+
+        if ($unidad <= 0) {
+            unset($this->productos[$codigo]);
+            unset($this->unidades[$codigo]);
+        } else {
+            $this->unidades[$codigo] = $unidad;
+        }
+
+        $this->guardar_cesta();
+    }*/
+
+
+
+    // Cargar cesta desde sesión
+    protected function cargar_cesta() {
+        $sesion = $this->requestStack->getSession();
+        if($sesion->has('productos') && $sesion->has('unidades')){
+            $this->productos = $sesion->get('productos');
+            $this->unidades = $sesion->get('unidades');
+        } else {
+            $this->productos = [];
+            $this->unidades = [];
+        }
+        
+    }
+
+    // Guardar cesta en sesión
+    protected function guardar_cesta() {
+        $sesion = $this->requestStack->getSession();
+        $sesion->set('productos', $this->productos); // objetos completos
+        $sesion->set('unidades', $this->unidades);
+    }
+
+
+
+    // Obtener productos
+    public function get_productos() {
+        $this->cargar_cesta();
+        return $this->productos;
+    }
+
+    // Obtener unidades
+    public function get_unidades() {
+        $this->cargar_cesta();
+        return $this->unidades;
+    }
+    
+    //ELiminar productos
+    public function eliminar_producto($codigo_producto, $unidades) {
+        //Cargamos la sesion de la cesta
+        $this->cargar_cesta();
+        
+        if(array_key_exists($codigo_producto, $this->productos)){
+            
+            $this-> unidades[$codigo_producto]-= $unidades;
+            
+            if($this->unidades[$codigo_producto] <= 0){
+                unset($this->unidades[$codigo_producto]);
+                unset($this->productos[$codigo_producto]);
+            }
+            $this->guardar_cesta();
+        }
+    }
 }
 
