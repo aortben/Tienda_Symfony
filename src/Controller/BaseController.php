@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 use App\Entity\Categoria;
 use App\Entity\Producto;
 use App\Services\CestaCompra;
+use App\Entity\Pedido;
 
 #[IsGranted('ROLE_USER')]
 final class BaseController extends AbstractController
@@ -87,6 +88,20 @@ final class BaseController extends AbstractController
         return $this->redirectToRoute('cesta');
     }
 
+      #METODO PARA HACER UN PEDIDO
+    #[Route('/pedido', name: 'pedido')]
+    public function pedidos(CestaCompra $cesta, ManagerRegistry $em){   
+        $cesta->get_productos();
+        $cesta->get_unidades();
+        
+        $Pedido = new Pedido();
+        $Pedido->setCoste($cesta);
+        
+        $pedido->
+        return $this->redirectToRoute("pedido");
+        
+        
+    }
     
     
 }
