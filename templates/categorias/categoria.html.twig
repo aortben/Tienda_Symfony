@@ -1,0 +1,28 @@
+{% extends "base.html.twig" %}
+
+{% block title %}Categorías - Tienda de Videojuegos{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <h1>Categorías</h1>
+    <div class="row mt-4">
+        {% for categoria in categorias %}
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ categoria.nombre }}</h5>
+                        <p class="card-text">{{ categoria.descripcion | default('Sin descripción') }}</p>
+                        <a href="{{ path('productos', {'categoria': categoria.id}) }}" class="btn btn-primary">
+                            Ver Productos
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="col-12">
+                <p>No hay categorías disponibles</p>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

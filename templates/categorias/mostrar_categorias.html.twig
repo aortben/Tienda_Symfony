@@ -1,0 +1,7 @@
+{% extends 'base.html.twig' %}
+
+{% block contenido %}
+    {% for categoria in categorias %}
+        <p><a href="{{  path('productos', {'categoria':categoria.getId()}) }}">{{categoria.getNombre() }}</a></p>
+        {% endfor %}    
+    {% endblock %}    

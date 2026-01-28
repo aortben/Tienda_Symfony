@@ -77,6 +77,40 @@ class CestaCompra {
         return $costeTotal;
     }
 
+    // Aumentar unidades de un producto
+    public function aumentar_unidad(int $codigo_producto): void {
+        $this->cargar_cesta();
+        
+        if(array_key_exists($codigo_producto, $this->productos)) {
+            $this->unidades[$codigo_producto]++;
+            $this->guardar_cesta();
+        }
+    }
+
+    // Disminuir unidades de un producto
+    public function disminuir_unidad(int $codigo_producto): void {
+        $this->cargar_cesta();
+        
+        if(array_key_exists($codigo_producto, $this->productos)) {
+            $this->unidades[$codigo_producto]--;
+            
+            // Si llega a 0 o menos, eliminar el producto
+            if($this->unidades[$codigo_producto] <= 0) {
+                unset($this->unidades[$codigo_producto]);
+                unset($this->productos[$codigo_producto]);
+            }
+            
+            $this->guardar_cesta();
+        }
+    }
+
+    // Vaciar cesta completamente
+    public function vaciar_cesta(): void {
+        $this->productos = [];
+        $this->unidades = [];
+        $this->guardar_cesta();
+    }
+
     // Getters
     public function get_productos() {
         $this->cargar_cesta();

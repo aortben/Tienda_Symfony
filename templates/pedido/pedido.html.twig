@@ -1,0 +1,43 @@
+{% extends "base.html.twig" %}
+
+{% block title %}Pedido - Tienda de Videojuegos{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            {% if error == 0 %}
+                <div class="alert alert-success" role="alert">
+                    <h4 class="alert-heading">¡Pedido Confirmado!</h4>
+                    <p>Tu pedido ha sido procesado correctamente.</p>
+                    <hr>
+                    <p class="mb-0">
+                        Número de Pedido: <strong>#{{ pedido_id }}</strong>
+                    </p>
+                    <p>Recibirás un correo de confirmación en tu bandeja de entrada.</p>
+                </div>
+                <a href="{{ path('categorias') }}" class="btn btn-primary">
+                    Continuar Comprando
+                </a>
+            {% elseif error == 1 %}
+                <div class="alert alert-warning" role="alert">
+                    <h4 class="alert-heading">Cesta Vacía</h4>
+                    <p>Tu cesta no contiene productos. Por favor, añade productos antes de realizar un pedido.</p>
+                </div>
+                <a href="{{ path('categorias') }}" class="btn btn-primary">
+                    Volver al Catálogo
+                </a>
+            {% else %}
+                <div class="alert alert-danger" role="alert">
+                    <h4 class="alert-heading">Error en el Pedido</h4>
+                    <p>Ocurrió un error al procesar tu pedido. Por favor, intenta de nuevo más tarde.</p>
+                </div>
+                <a href="{{ path('cesta') }}" class="btn btn-primary">
+                    Volver a la Cesta
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}    
+

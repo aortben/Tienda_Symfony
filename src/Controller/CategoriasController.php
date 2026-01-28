@@ -2,22 +2,18 @@
 
 namespace App\Controller;
 
-use App\Repository\CategoriaRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * CategoriasController
+ * 
+ * NOTA: Las rutas de categorías están centralizadas en BaseController
+ * Este controlador se mantiene para futuras extensiones
+ */
 final class CategoriasController extends AbstractController
 {
-    #[Route('/categorias', name: 'app_categorias')]
-    public function index(CategoriaRepository $categoriaRepository): Response
-    {
-        // Obtenemos todas las categorías de la base de datos
-        $categorias = $categoriaRepository->findAll();
-
-        return $this->render('categoria.html.twig', [
-            'categorias' => $categorias,
-        ]);
-    }
+    // Las funcionalidades de categorías están en BaseController:
+    // - mostrar_categorias -> /categorias
 }
+
 

@@ -1,0 +1,68 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Productos - Tienda de Videojuegos{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    {% if productos is not empty %}
+        <h1>{{ productos[0].categoria.nombre }}</h1>
+        <p class="text-muted">Selecciona los productos que deseas agregar a tu cesta</p>
+        <hr>
+
+        <form method="post" action="{{ path('anadir') }}">
+            <div class="row">
+                {% for producto in productos %}
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ producto.nombre }}</h5>
+                                <p class="card-text text-muted">{{ producto.nombreCorto }}</p>
+                                <p class="card-text">{{ producto.descripcion|truncate(100) }}</p>
+                                
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <span class="fw-bold fs-5">{{ producto.precio | number_format(2, ',', '.') }}€</span>
+                                    <span class="badge {% if producto.stock > 0 %}bg-success{% else %}bg-danger{% endif %}">
+                                        {% if producto.stock > 0 %}
+                                            Stock: {{ producto.stock }}
+                                        {% else %}
+                                            Agotado
+                                        {% endif %}
+                                    </span>
+                                </div>
+
+                                <div class="input-group">
+                                    <label class="input-group-text" for="unidades_{{ producto.id }}">Cantidad:</label>
+                                    <input 
+                                        type="number" 
+                                        class="form-control" 
+                                        id="unidades_{{ producto.id }}"
+                                        name="unidades[]" 
+                                        value="0" 
+                                        min="0" 
+                                        max="{{ producto.stock }}"
+                                        {% if producto.stock == 0 %}disabled{% endif %}
+                                    >
+                                    <input type="hidden" name="productos_id[]" value="{{ producto.id }}">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-md-12">
+                    <a href="{{ path('categorias') }}" class="btn btn-secondary">Volver a Categorías</a>
+                    <button type="submit" class="btn btn-primary float-end">Agregar a la Cesta</button>
+                </div>
+            </div>
+        </form>
+    {% else %}
+        <div class="alert alert-warning" role="alert">
+            <h4>No hay productos disponibles</h4>
+            <p>Esta categoría no tiene productos en este momento.</p>
+            <a href="{{ path('categorias') }}" class="btn btn-primary">Volver a Categorías</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}    

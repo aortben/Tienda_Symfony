@@ -1,0 +1,26 @@
+{# templates/correo.html.twig #}
+
+<h1>¡Gracias por su compra {{ app.user.nombre }}!</h1>
+<h2>Identificador de su pedido: #{{ pedido_id }}</h2>
+
+<h2>Resumen de su compra: </h2>
+
+<table>
+    <tr>
+        <th>Código</th>
+        <th>Nombre</th>
+        <th>Descripción</th>
+        <th>Precio y unidades</th>
+        <th>Precio total</th>
+    </tr>
+    {% for codigo, producto in productos %}
+     <tr>
+      <td>{{ codigo }}</td>
+      <td>{{ producto.nombre() }}</td>
+      <td>{{ producto.descripcion() }}</td>
+      <td>{{ coste}}€</td>
+     </tr>
+    {% endfor %}
+</table>
+
+<p>Precio total: {{ precioTotal }}€</p>

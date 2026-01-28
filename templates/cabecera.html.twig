@@ -1,0 +1,7 @@
+{# templates/base.html.twig #}
+{% block header %}
+    <h3>Bienvenid@ {{  app.user.login }}</h3>
+    <a href="{{ path('categorias') }}">Categorías</a>
+        <a href="{{ path('cesta') }}">Cesta</a>
+    <a href="{{ path('logout') }}">Logout</a>
+{% endblock %}

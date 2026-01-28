@@ -1,87 +1,39 @@
-{% extends 'base.html.twig' %}
+{% extends "base.html.twig" %}
 
-{% block title %}Productos{% endblock %}
+{% block title %}Productos - Tienda de Videojuegos{% endblock %}
 
 {% block body %}
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="{{ path('app_home') }}">Mi Tienda</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ path('app_home') }}">Inicio</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" href="{{ path('app_categorias') }}">Categorías</a>
-                </li>
-            </ul>
-            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                {% if app.user %}
-                    <li class="nav-item">
-                        <span class="navbar-text me-3">Hola, {{ app.user.userIdentifier }}</span>
-                    </li>
-                    <li class="nav-item">
-                        <a class="btn btn-outline-light" href="{{ path('logout') }}">Cerrar sesión</a>
-                    </li>
-                {% else %}
-                    <li class="nav-item">
-                        <a class="btn btn-outline-light" href="{{ path('login') }}">Iniciar sesión</a>
-                    </li>
-                {% endif %}
-            </ul>
-        </div>
-    </div>
-</nav>
-
-{% if not app.user %}
-    <div class="container text-center mt-5">
-        <h3>Debes iniciar sesión para ver los productos.</h3>
-        <a href="{{ path('login') }}" class="btn btn-primary mt-3">Ir a login</a>
-    </div>
-{% else %}
-    <div class="container">
-        {% if categoria is defined %}
-            <h1 class="text-center mb-4">Productos en la categoría "{{ categoria.categoria }}"</h1>
-        {% else %}
-            <h1 class="text-center mb-4">Todos los productos</h1>
-        {% endif %}
-
-        {% if productos|length > 0 %}
-            <div class="d-flex flex-wrap gap-3 justify-content-center">
-                {% for producto in productos %}
-                    <div class="card text-center" style="min-width: 180px; max-width: 250px; transition: transform 0.2s, box-shadow 0.2s;">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ producto.name }}</h5>
-
-                            <p class="card-text"><strong>{{ producto.price }} €</strong></p>
-
-                            {% if producto.categoria is defined %}
-                                <p class="text-muted" style="font-size:0.9rem;">{{ producto.categoria.categoria }}</p>
-                            {% endif %}
-                            
-                            <form action="{{ path('anadir', { id: producto.id }) }}" method="post" class="mt-2">
-                                <div class="input-group">
-                                    <input type="number" name="cantidad" class="form-control" value="1" min="1">
-                                    <button type="submit" class="btn btn-success">Comprar</button>
-                                </div>
-                            </form>
-
-                        </div>
+<div class="container mt-5">
+    {% if categoria %}
+        <h1>Productos - {{ categoria.nombre }}</h1>
+    {% else %}
+        <h1>Todos los Productos</h1>
+    {% endif %}
+    
+    <div class="row mt-4">
+        {% for producto in productos %}
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ producto.nombre }}</h5>
+                        <p class="card-text">{{ producto.descripcion | default('Sin descripción') }}</p>
+                        <p class="card-text">
+                            <strong>Precio: {{ producto.precio }}€</strong>
+                        </p>
+                        <p class="card-text">
+                            Stock: {{ producto.stock }}
+                        </p>
+                        <a href="{{ path('categorias') }}" class="btn btn-secondary">
+                            Volver
+                        </a>
                     </div>
-                {% endfor %}
+                </div>
             </div>
         {% else %}
-            <p class="text-center mt-4">No hay productos disponibles.</p>
-        {% endif %}
-
-        <div class="text-center mt-4">
-            <a href="{{ path('app_categorias') }}" class="btn btn-primary">← Volver a categorías</a>
-        </div>
+            <div class="col-12">
+                <p>No hay productos disponibles</p>
+            </div>
+        {% endfor %}
     </div>
-{% endif %}
+</div>
 {% endblock %}
-
-
