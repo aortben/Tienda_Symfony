@@ -90,18 +90,73 @@ final class BaseController extends AbstractController
 
       #METODO PARA HACER UN PEDIDO
     #[Route('/pedido', name: 'pedido')]
-    public function pedidos(CestaCompra $cesta, ManagerRegistry $em){   
-        $cesta->get_productos();
-        $cesta->get_unidades();
-        
-        $Pedido = new Pedido();
-        $Pedido->setCoste($cesta);
-        
-        $pedido->
-        return $this->redirectToRoute("pedido");
-        
-        
+    public function pedidos(CestaCompra $cesta, EntityManagerInterface $em, MailerInterface $mailer): Response
+    {
+        $productos = $cesta->get_productos();
+        $unidades = $cesta->get_unidades();
+        $error = 0; // Inicializamos variable
+        $pedido = null;
+
+        if (count($productos) == 0) {
+            $error = 1; // Cesta vacía
+        } else {
+            // 1. Crear el Pedido Cabecera
+            $pedido = new Pedido();
+            $pedido->setCoste($cesta->calcular_coste()); // Corregido typo 'cosye'
+            $pedido->setFecha(new \DateTime());
+            $pedido->setUsuario($this->getUser());
+
+            $em->persist($pedido);
+
+            // 2. Crear las líneas de Pedido (PedidoProducto)
+            foreach ($productos as $productoCesta) {
+                $pedidoProducto = new PedidoProducto();
+                $pedidoProducto->setPedido($pedido);
+                $pedidoProducto->setProducto($productoCesta);
+                
+                // Asumimos que $unidades tiene como clave el ID del producto
+                $idProducto = $productoCesta->getId();
+                $cantidad = $unidades[$idProducto] ?? 1; // Corregido acceso array con []
+                
+                $pedidoProducto->setUnidades($cantidad);
+                
+                $em->persist($pedidoProducto);
+            }
+
+            try {
+                $em->flush();
+                
+                // 3. ENVIAR CORREO (Solo si se guarda bien en BD)
+                $email = (new Email())
+                    ->from('tienda@videojuegos.com')
+                    ->to($this->getUser()->getEmail()) // Asumiendo que User tiene getEmail()
+                    ->subject('Confirmación de Pedido #' . $pedido->getId())
+                    ->html($this->renderView('emails/pedido_confirmacion.html.twig', [
+                        'pedido' => $pedido,
+                        'productos' => $productos,
+                        'unidades' => $unidades
+                    ]));
+
+                $mailer->send($email);
+
+                // 4. Vaciar cesta tras compra exitosa (Opcional pero recomendado)
+                // $cesta->vaciar(); 
+
+            } catch (\Exception $ex) {
+                $error = 2; // Error en BD o Correo
+                // Opcional: Loguear el error $ex->getMessage()
+            }
+        }
+
+        return $this->render('pedido/pedido.html.twig', [
+            // Usamos null safe operator (?) por si pedido no se creó
+            'pedido_id' => $pedido ? $pedido->getId() : null,
+            'error' => $error
+        ]);
     }
-    
-    
 }
+
+    
+    
+    
+

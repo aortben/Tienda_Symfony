@@ -8,6 +8,7 @@ use App\Entity\Producto;
 class CestaCompra {
     
     protected $requestStack;
+    // Inicializamos como arrays vacíos para evitar errores
     protected $productos = [];
     protected $unidades = [];
 
@@ -15,19 +16,29 @@ class CestaCompra {
         $this->requestStack = $requestStack;
     }
 
-    // Cargar varios productos, recibe como los parametros los productos y unidades
+    // Cargar varios productos (ej: desde un formulario múltiple)
     public function cargar_productos(array $productos, array $unidades) {
         $this->cargar_cesta();
+        
+        // Usamos count($productos) para evitar errores si los arrays tienen distinto tamaño
         for ($i = 0; $i < count($productos); $i++) {
             if ($unidades[$i] != 0) {
-                $this->cargar_producto($productos[$i], $unidades[$i]);
+                // Reutilizamos el método individual para no duplicar código
+                $this->cargar_producto($productos[$i], (int)$unidades[$i]);
             }
         }
+        // Aquí no hace falta guardar_cesta() porque cargar_producto ya lo hace,
+        // pero mal no hace dejarlo si quieres asegurar.
+        $this->guardar_cesta(); 
     }
 
-    // Cargar un producto en la cesta
+    // Cargar un UNICO producto
     public function cargar_producto(Producto $producto, int $unidad){ 
-    $codigo = $producto->getCodigo();
+        // Asegúrate si en tu entidad se llama getCodigo() o getId()
+        $codigo = $producto->getId(); 
+        
+        $this->cargar_cesta(); // Nos aseguramos de tener lo último de la sesión
+
         if(array_key_exists($codigo, $this->productos)){
             $this->unidades[$codigo] += $unidad;
         } else if($unidad != 0) {
@@ -38,23 +49,47 @@ class CestaCompra {
         $this->guardar_cesta();
     }
     
-    // Actualizar unidades en la cesta (si llega a 0 se elimina)
-    /*public function actualizar_producto(string $codigo, int $unidad) {
+    // Eliminar productos
+    public function eliminar_producto($codigo_producto, $unidades_a_restar) {
         $this->cargar_cesta();
-
-        if ($unidad <= 0) {
-            unset($this->productos[$codigo]);
-            unset($this->unidades[$codigo]);
-        } else {
-            $this->unidades[$codigo] = $unidad;
+        
+        if(array_key_exists($codigo_producto, $this->productos)){
+            
+            $this->unidades[$codigo_producto] -= $unidades_a_restar;
+            
+            if($this->unidades[$codigo_producto] <= 0){
+                unset($this->unidades[$codigo_producto]);
+                unset($this->productos[$codigo_producto]);
+            }
+            $this->guardar_cesta();
         }
+    }
 
-        $this->guardar_cesta();
-    }*/
+    // Calcular coste TOTAL (Sin parámetros, usa los datos internos)
+    public function calcular_coste(): float {
+        $this->cargar_cesta();
+        $costeTotal = 0;
+        
+        foreach ($this->productos as $codigo_producto => $producto) {
+            // Asumimos que getPrecio() devuelve un float/número
+            $costeTotal += $producto->getPrecio() * $this->unidades[$codigo_producto];   
+        }
+        return $costeTotal;
+    }
 
+    // Getters
+    public function get_productos() {
+        $this->cargar_cesta();
+        return $this->productos;
+    }
 
+    public function get_unidades() {
+        $this->cargar_cesta();
+        return $this->unidades;
+    }
 
-    // Cargar cesta desde sesión
+    // Métodos internos (Protected)
+    
     protected function cargar_cesta() {
         $sesion = $this->requestStack->getSession();
         if($sesion->has('productos') && $sesion->has('unidades')){
@@ -64,56 +99,11 @@ class CestaCompra {
             $this->productos = [];
             $this->unidades = [];
         }
-        
     }
 
-    // Guardar cesta en sesión
     protected function guardar_cesta() {
         $sesion = $this->requestStack->getSession();
-        $sesion->set('productos', $this->productos); // objetos completos
+        $sesion->set('productos', $this->productos);
         $sesion->set('unidades', $this->unidades);
     }
-
-
-
-    // Obtener productos
-    public function get_productos() {
-        $this->cargar_cesta();
-        return $this->productos;
-    }
-
-    // Obtener unidades
-    public function get_unidades() {
-        $this->cargar_cesta();
-        return $this->unidades;
-    }
-    
-    //ELiminar productos
-    public function eliminar_producto($codigo_producto, $unidades) {
-        //Cargamos la sesion de la cesta
-        $this->cargar_cesta();
-        
-        if(array_key_exists($codigo_producto, $this->productos)){
-            
-            $this-> unidades[$codigo_producto]-= $unidades;
-            
-            if($this->unidades[$codigo_producto] <= 0){
-                unset($this->unidades[$codigo_producto]);
-                unset($this->productos[$codigo_producto]);
-            }
-            $this->guardar_cesta();
-        }
-    }
-    
-    public function calcular_coste($unidades, $producto){
-            $costeTotal = 0;
-            foreach ($this->productos as $codigo_producto => $producto) {
-                //Multiplicamos por unidades y sumamos coste total
-                $costeTotal += $producto -> getPrecio() * $this->unidades[$codigo_producto];   
-            }
-            return $costeTotal;
-           }
-            
- 
 }
-
