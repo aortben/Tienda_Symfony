@@ -117,14 +117,15 @@ final class BaseController extends AbstractController
         ]);
     }
     
-    #METODO PARA ACTUALIZAR LA CESTA
     #[Route('/eliminar', name: 'eliminar')]
     public function eliminar(Request $request, CestaCompra $cesta)
     {   
-        //Eliminamos la cantidad
-        $producto_id = $request->request->get("productos_id");
-        $unidades = $request->request->get("unidades");
+        // CORRECCIÓN: En el formulario HTML el name es "producto_id" (singular), 
+        // no "productos_id" (plural).
+        $producto_id = (int) $request->request->get("producto_id");
+        $unidades = (int) $request->request->get("unidades");
         
+        // Llamamos al servicio para que haga el trabajo sucio
         $cesta->eliminar_producto($producto_id, $unidades);
         
         $this->addFlash('success', 'Producto eliminado de la cesta.');
@@ -218,6 +219,14 @@ final class BaseController extends AbstractController
             // Usamos null safe operator (?) por si pedido no se creó
             'pedido_id' => $pedido ? $pedido->getId() : null,
             'error' => $error
+        ]);
+    }
+    
+    #[Route('/producto/{id}', name: 'detalles')]
+    public function detalles(Producto $producto): Response
+    {
+        return $this->render('productos/detalles_productos.html.twig', [
+            'producto' => $producto
         ]);
     }
 }

@@ -1,0 +1,51 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Detalles: {{ producto.nombre }}{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="row">
+        {# Columna de la Imagen (Placeholder generado con el nombre) #}
+        <div class="col-md-5">
+            <div class="card shadow-sm">
+                <img src="https://placehold.co/600x400?text={{ producto.nombre|url_encode }}" class="card-img-top" alt="{{ producto.nombre }}">
+            </div>
+        </div>
+
+        {# Columna de la Información #}
+        <div class="col-md-7">
+            <h1 class="display-5">{{ producto.nombre }}</h1>
+            <p class="text-muted">Ref: {{ producto.codigo }}</p>
+            
+            <h2 class="text-primary fw-bold my-3">{{ producto.precio|number_format(2, ',', '.') }} €</h2>
+
+            <div class="mb-4">
+                <h5>Descripción:</h5>
+                <p class="lead" style="font-size: 1.1rem;">{{ producto.descripcion }}</p>
+            </div>
+
+            <ul class="list-group list-group-flush mb-4">
+                <li class="list-group-item">
+                    <strong>Categoría:</strong> 
+                    <span class="badge bg-info text-dark">{{ producto.categoria.nombre }}</span>
+                </li>
+                <li class="list-group-item">
+                    <strong>Stock disponible:</strong>
+                    {% if producto.stock > 0 %}
+                        <span class="badge bg-success">{{ producto.stock }} unidades</span>
+                    {% else %}
+                        <span class="badge bg-danger">Agotado</span>
+                    {% endif %}
+                </li>
+            </ul>
+
+            <div class="d-grid gap-2 d-md-block">
+                {# Botón para volver atrás #}
+                <a href="{{ path('categorias') }}" class="btn btn-outline-secondary btn-lg">
+                    &larr; Volver al catálogo
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

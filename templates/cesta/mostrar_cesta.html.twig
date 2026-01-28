@@ -1,100 +1,32 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Cesta de Compra - Tienda de Videojuegos{% endblock %}
+{% block title %}Hello CestaController{% endblock %}
 
 {% block body %}
-<div class="container mt-5">
-    <h1>Cesta de Compra</h1>
-    <hr>
+    <h1>Mostrar Cesta</h1>
+    <table>
+        <tr>
+            <th>Nombre del Producto</th>
+            <th>Descripción</th>
+            <th>Precio</th>
+            <th>Unidades</th>
+            <th>Eliminar</th>
+        </tr>
+        {% for cod, producto in productos %}
+            {% set unidades_producto = unidades[cod] %}
+            <tr>
+                <td>{{ producto.nombre }}</td>
+                <td>{{ producto.descripcion}}</td>
+                <td>{{ producto.precio}}</td>
+                <td>{{ unidades_producto }}</td>
+                <td><form method="POST" action="{{ path('eliminar') }}">
+                        <input type="number" value="1" min="1" name="unidades">
+                        <input type="hidden" name="producto_id" value="{{ producto.id }}">
+                        <input type="submit" name="eliminar_producto" value="Eliminar">
+                    </form>
+            </tr>
 
-    {% if productos|length > 0 %}
-        <div class="row">
-            <div class="col-md-8">
-                <table class="table table-striped">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>Producto</th>
-                            <th>Precio Unitario</th>
-                            <th>Cantidad</th>
-                            <th>Subtotal</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% set total = 0 %}
-                        {% for cod, producto in productos %}
-                            {% set unidades_producto = unidades[cod] %}
-                            {% set subtotal = producto.precio * unidades_producto %}
-                            {% set total = total + subtotal %}
-                            <tr>
-                                <td>
-                                    <strong>{{ producto.nombre }}</strong>
-                                    <br>
-                                    <small class="text-muted">{{ producto.descripcion|truncate(50) }}</small>
-                                </td>
-                                <td>{{ producto.precio | number_format(2, ',', '.') }}€</td>
-                                <td>
-                                    <div class="input-group" style="width: 120px;">
-                                        <a href="{{ path('disminuir_unidad', {'producto': cod}) }}" class="btn btn-sm btn-outline-secondary">-</a>
-                                        <input type="text" class="form-control text-center" value="{{ unidades_producto }}" readonly>
-                                        <a href="{{ path('aumentar_unidad', {'producto': cod}) }}" class="btn btn-sm btn-outline-secondary">+</a>
-                                    </div>
-                                </td>
-                                <td class="fw-bold">{{ subtotal | number_format(2, ',', '.') }}€</td>
-                                <td>
-                                    <form method="POST" action="{{ path('eliminar') }}" style="display: inline;">
-                                        <input type="hidden" name="productos_id" value="{{ cod }}">
-                                        <input type="hidden" name="unidades" value="{{ unidades_producto }}">
-                                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Estás seguro de que deseas eliminar este producto?')">
-                                            🗑️ Eliminar
-                                        </button>
-                                    </form>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
 
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Resumen de Compra</h5>
-                        <hr>
-                        <div class="d-flex justify-content-between mb-2">
-                            <span>Subtotal:</span>
-                            <span>{{ total | number_format(2, ',', '.') }}€</span>
-                        </div>
-                        <div class="d-flex justify-content-between mb-2">
-                            <span>Envío:</span>
-                            <span>Gratis</span>
-                        </div>
-                        <hr>
-                        <div class="d-flex justify-content-between fw-bold fs-5">
-                            <span>Total:</span>
-                            <span class="text-primary">{{ total | number_format(2, ',', '.') }}€</span>
-                        </div>
-                        <hr>
-                        <a href="{{ path('categorias') }}" class="btn btn-secondary w-100 mb-2">
-                            Continuar Comprando
-                        </a>
-                        <a href="{{ path('pedido') }}" class="btn btn-success w-100">
-                            Finalizar Compra
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    {% else %}
-        <div class="alert alert-info" role="alert">
-            <h4 class="alert-heading">Cesta Vacía</h4>
-            <p>Tu cesta no contiene productos. ¡Vuelve al catálogo para agregar algunos!</p>
-            <hr>
-            <a href="{{ path('categorias') }}" class="btn btn-primary">
-                Ir al Catálogo
-            </a>
-        </div>
-    {% endif %}
-</div>
-{% endblock %}
 
+        {% endfor %}
+    {%endblock%}

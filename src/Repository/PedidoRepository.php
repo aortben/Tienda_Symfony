@@ -2,54 +2,44 @@
 
 namespace App\Repository;
 
+use App\Entity\Pedido;
 use App\Entity\Producto;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<Producto>
+ * @extends ServiceEntityRepository<Pedido>
  */
-class ProductoRepository extends ServiceEntityRepository
+class PedidoRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, Producto::class);
+        // CORRECCIÓN 1: Aquí debe poner Pedido::class, porque estamos en PedidoRepository
+        parent::__construct($registry, Pedido::class);
     }
 
-    //    /**
-    //     * @return Producto[] Returns an array of Producto objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('p')
-    //            ->andWhere('p.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('p.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    /**
+     * Transforma un array de IDs en un array de objetos Producto
+     */
+    public function findProductosByIds(array $productos_ids): array
+    {
+        if (empty($productos_ids)) {
+            return [];
+        }
 
-    //    public function findOneBySomeField($value): ?Producto
-    //    {
-    //        return $this->createQueryBuilder('p')
-    //            ->andWhere('p.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
-    //Transformo el array de id a un array de productos
-    public function findProductosByIds(array $productos_ids): array{
         $em = $this->getEntityManager();
         $productos = [];
+
         foreach($productos_ids as $producto_id) {
-            $producto = $em->getRepository(Producto::class)->find($producto);
-            $productos[] = $producto;
+            // CORRECCIÓN 2: Usamos Producto::class para buscar productos
+            // CORRECCIÓN 3: Corregido el nombre de la variable ($producto_id)
+            $producto = $em->getRepository(Producto::class)->find($producto_id);
+            
+            if ($producto) {
+                $productos[] = $producto;
+            }
         }
         
         return $productos;
     }
-    
 }
