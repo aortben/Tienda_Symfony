@@ -4,6 +4,13 @@
     <head>
         <meta charset="UTF-8">
         <title>{% block title %}Aplicación de pedidos{% endblock %}</title>
+        {# Añadimos un poco de CSS básico por si no tienes Bootstrap cargado aquí #}
+        <style>
+            .alert { padding: 15px; margin-bottom: 20px; border: 1px solid transparent; border-radius: 4px; }
+            .alert-danger { color: #a94442; background-color: #f2dede; border-color: #ebccd1; }
+            .alert-success { color: #3c763d; background-color: #dff0d8; border-color: #d6e9c6; }
+            .alert-warning { color: #8a6d3b; background-color: #fcf8e3; border-color: #faebcc; }
+        </style>
     </head>
     <body>
         {% block body %}
@@ -11,10 +18,23 @@
                 {% block header %}
                     {{ include('cabecera.html.twig') }}
                     <hr>
-                {%endblock %}
+                {% endblock %}
             </header>
-            {% block contenido%}
-            {% endblock%}        
+
+            {# --- AQUÍ ES DONDE SE MUESTRAN LOS ERRORES --- #}
+            <div style="max-width: 800px; margin: 0 auto;">
+                {% for label, messages in app.flashes %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ label }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+            </div>
+            {# --------------------------------------------- #}
+
+            {% block contenido %}
+            {% endblock %}      
         {% endblock %}
     </body>
 </html>

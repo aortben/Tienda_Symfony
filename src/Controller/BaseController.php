@@ -161,7 +161,7 @@ final class BaseController extends AbstractController
         if (count($productos) == 0) {
             $error = 1; // Cesta vacía
         } else {
-            try {
+            //try {
                 // 1. Crear el Pedido Cabecera
                 $pedido = new Pedido();
                 $pedido->setCoste($cesta->calcular_coste()); // Corregido typo 'cosye'
@@ -171,29 +171,44 @@ final class BaseController extends AbstractController
                 $em->persist($pedido);
 
                 // 2. Crear las líneas de Pedido (PedidoProducto)
-                foreach ($productos as $productoCesta) {
+                // 2. Crear las líneas de Pedido (PedidoProducto)
+                foreach ($productos as $productoSesion) {
+                    // TRUCO DEL ALMENDRUCO: 
+                    // No usamos el objeto de la sesión ($productoSesion) para guardar,
+                    // porque está "desconectado" y da el error de Proxy/Categoria.
+                    // Lo buscamos "fresco" en la base de datos usando su ID.
+                    
+                    $productoReal = $em->getRepository(Producto::class)->find($productoSesion->getId());
+
+                    // Si por lo que sea han borrado el producto de la BD mientras comprabas
+                    if (!$productoReal) continue;
+
                     $pedidoProducto = new PedidoProducto();
                     $pedidoProducto->setPedido($pedido);
-                    $pedidoProducto->setProducto($productoCesta);
                     
-                    // Asumimos que $unidades tiene como clave el ID del producto
-                    $idProducto = $productoCesta->getId();
-                    $cantidad = $unidades[$idProducto] ?? 1; // Corregido acceso array con []
+                    // Aquí vinculamos con el producto REAL de la base de datos
+                    $pedidoProducto->setProducto($productoReal);
+                    
+                    $idProducto = $productoSesion->getId();
+                    $cantidad = $unidades[$idProducto] ?? 1;
                     
                     $pedidoProducto->setUnidades($cantidad);
                     
-                    // Reducir stock del producto
-                    $productoCesta->setStock($productoCesta->getStock() - $cantidad);
-                    $em->persist($productoCesta);
+                    // Reducir stock del producto REAL
+                    $nuevoStock = $productoReal->getStock() - $cantidad;
+                    $productoReal->setStock($nuevoStock);
+
+                    // Doctrine es listo: al modificar $productoReal, él sabe que tiene que hacer UPDATE.
+                    // No hace falta hacer persist($productoReal) obligatoriamente si ya existía,
+                    // pero persist($pedidoProducto) sí es obligatorio porque es nuevo.
                     $em->persist($pedidoProducto);
                 }
-
                 // Guardar todo en BD
                 $em->flush();
                 
                 // 3. ENVIAR CORREO (Solo si se guarda bien en BD)
                 $email = (new Email())
-                    ->from('tienda@videojuegos.com')
+                    ->from('alvaroortegabenitez03@gmail.com')
                     ->to((string)$this->getUser()->getEmail())
                     ->subject('Confirmación de Pedido #' . $pedido->getId())
                     ->html($this->renderView('emails/pedido_confirmacion.html.twig', [
@@ -209,10 +224,10 @@ final class BaseController extends AbstractController
                 
                 $this->addFlash('success', 'Pedido realizado correctamente. Revisa tu email para la confirmación.');
 
-            } catch (\Exception $ex) {
-                $error = 2; // Error en BD o Correo
-                $this->addFlash('danger', 'Error al procesar el pedido: ' . $ex->getMessage());
-            }
+            //} catch (\Exception $ex) {
+             //   $error = 2; 
+               // $this->addFlash('danger', 'Error al procesar el pedido: ' . $ex->getMessage());
+            //}
         }
 
         return $this->render('pedido/pedido.html.twig', [

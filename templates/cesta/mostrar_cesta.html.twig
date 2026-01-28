@@ -25,8 +25,19 @@
                         <input type="submit" name="eliminar_producto" value="Eliminar">
                     </form>
             </tr>
-
-
+            
 
         {% endfor %}
+        <div class="mt-4 text-end">
+            {# Solo mostramos el botón si hay productos #}
+    {% if productos|length > 0 %}
+        <a href="{{ path('pedido') }}" class="btn btn-success btn-lg">
+            Finalizar Compra y Pagar
+        </a>
+    {% else %}
+        <a href="{{ path('categorias') }}" class="btn btn-primary">
+            Ir a comprar algo
+        </a>
+    {% endif %}
+</div>
     {%endblock%}
