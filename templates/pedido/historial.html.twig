@@ -1,0 +1,61 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mis Pedidos{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <h2 class="mb-4">📜 Mi Historial de Compras</h2>
+
+    {# Si no hay pedidos, mostramos un aviso #}
+    {% if pedidos is empty %}
+        <div class="alert alert-info">
+            Aún no has realizado ninguna compra. 
+            <a href="{{ path('categorias') }}" class="alert-link">¡Ir a la tienda!</a>
+        </div>
+    {% else %}
+        {# Usamos un Acordeón de Bootstrap para que quede limpio #}
+        <div class="accordion" id="accordionPedidos">
+            {% for pedido in pedidos %}
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="heading{{ pedido.id }}">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ pedido.id }}">
+                            <strong>Pedido #{{ pedido.id }}</strong> 
+                            &nbsp;—&nbsp; {{ pedido.fecha|date('d/m/Y H:i') }} 
+                            &nbsp;—&nbsp; <span class="text-success fw-bold">{{ pedido.coste }} €</span>
+                        </button>
+                    </h2>
+                    <div id="collapse{{ pedido.id }}" class="accordion-collapse collapse" data-bs-parent="#accordionPedidos">
+                        <div class="accordion-body">
+                            <table class="table table-sm table-striped">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Producto</th>
+                                        <th>Unidades</th>
+                                        <th>Precio Ud.</th>
+                                        <th>Subtotal</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {# AQUÍ ESTÁ LA CLAVE: Recorremos los productos de ESTE pedido #}
+                                    {% for linea in pedido.pedidoProductos %}
+                                        <tr>
+                                            <td>{{ linea.producto.nombre }}</td>
+                                            <td>{{ linea.unidades }}</td>
+                                            <td>{{ linea.producto.precio }} €</td>
+                                            <td>{{ linea.unidades * linea.producto.precio }} €</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    
+    <div class="mt-4">
+        <a href="{{ path('categorias') }}" class="btn btn-secondary">Volver a la tienda</a>
+    </div>
+</div>
+{% endblock %}

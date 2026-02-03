@@ -13,7 +13,7 @@ class PedidoProducto
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne]
+    #[ORM\ManyToOne(inversedBy: 'pedidoProductos')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Pedido $pedido = null;
 

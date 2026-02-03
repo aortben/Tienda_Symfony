@@ -4,7 +4,6 @@
     <head>
         <meta charset="UTF-8">
         <title>{% block title %}Aplicación de pedidos{% endblock %}</title>
-        {# Añadimos un poco de CSS básico por si no tienes Bootstrap cargado aquí #}
         <style>
             .alert { padding: 15px; margin-bottom: 20px; border: 1px solid transparent; border-radius: 4px; }
             .alert-danger { color: #a94442; background-color: #f2dede; border-color: #ebccd1; }
@@ -13,6 +12,12 @@
         </style>
     </head>
     <body>
+        {# Busca tu barra de navegación y añade esto donde quieras que salga #}
+{% if app.user %}
+    <li class="nav-item">
+        <a class="nav-link" href="{{ path('historial') }}">📜 Mis Pedidos</a>
+    </li>
+{% endif %}
         {% block body %}
             <header>
                 {% block header %}
@@ -21,7 +26,7 @@
                 {% endblock %}
             </header>
 
-            {# --- AQUÍ ES DONDE SE MUESTRAN LOS ERRORES --- #}
+          
             <div style="max-width: 800px; margin: 0 auto;">
                 {% for label, messages in app.flashes %}
                     {% for message in messages %}

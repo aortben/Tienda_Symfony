@@ -8,7 +8,6 @@ use App\Entity\Producto;
 class CestaCompra {
     
     protected $requestStack;
-    // Inicializamos como arrays vacíos para evitar errores
     protected $productos = [];
     protected $unidades = [];
 
@@ -16,7 +15,7 @@ class CestaCompra {
         $this->requestStack = $requestStack;
     }
 
-    // Cargar varios productos (ej: desde un formulario múltiple)
+    // Cargar varios productos 
     public function cargar_productos(array $productos, array $unidades) {
         $this->cargar_cesta();
         
@@ -27,8 +26,6 @@ class CestaCompra {
                 $this->cargar_producto($productos[$i], (int)$unidades[$i]);
             }
         }
-        // Aquí no hace falta guardar_cesta() porque cargar_producto ya lo hace,
-        // pero mal no hace dejarlo si quieres asegurar.
         $this->guardar_cesta(); 
     }
 
@@ -71,7 +68,6 @@ class CestaCompra {
         $costeTotal = 0;
         
         foreach ($this->productos as $codigo_producto => $producto) {
-            // Asumimos que getPrecio() devuelve un float/número
             $costeTotal += $producto->getPrecio() * $this->unidades[$codigo_producto];   
         }
         return $costeTotal;

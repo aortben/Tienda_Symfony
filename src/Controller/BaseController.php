@@ -244,6 +244,25 @@ final class BaseController extends AbstractController
             'producto' => $producto
         ]);
     }
+    
+    #[Route('/historial', name: 'historial')] 
+    public function historial(ManagerRegistry $doctrine): Response
+    {
+        $user = $this->getUser();
+        
+        if (!$user) {
+            return $this->redirectToRoute('login');
+        }
+
+        $pedidos = $doctrine->getRepository(Pedido::class)->findBy(
+            ['usuario' => $user], 
+            ['fecha' => 'DESC']
+        );
+
+        return $this->render('pedido/historial.html.twig', [
+            'pedidos' => $pedidos
+        ]);
+    }
 }
 
     
