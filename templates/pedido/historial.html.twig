@@ -4,16 +4,14 @@
 
 {% block body %}
 <div class="container mt-5">
-    <h2 class="mb-4">📜 Mi Historial de Compras</h2>
+    <h2 class="mb-4">Historial de Compras</h2>
 
-    {# Si no hay pedidos, mostramos un aviso #}
     {% if pedidos is empty %}
         <div class="alert alert-info">
             Aún no has realizado ninguna compra. 
             <a href="{{ path('categorias') }}" class="alert-link">¡Ir a la tienda!</a>
         </div>
     {% else %}
-        {# Usamos un Acordeón de Bootstrap para que quede limpio #}
         <div class="accordion" id="accordionPedidos">
             {% for pedido in pedidos %}
                 <div class="accordion-item">
@@ -36,7 +34,6 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {# AQUÍ ESTÁ LA CLAVE: Recorremos los productos de ESTE pedido #}
                                     {% for linea in pedido.pedidoProductos %}
                                         <tr>
                                             <td>{{ linea.producto.nombre }}</td>

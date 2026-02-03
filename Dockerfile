@@ -14,10 +14,11 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y \
     autoconf \
     gcc \
     make \
+    libicu-dev
     && rm -rf /var/lib/apt/lists/*
 
 # Extensiones PHP
-RUN docker-php-ext-install pdo pdo_pgsql
+RUN docker-php-ext-install pdo pdo_pgsql intl
 
 # Instalamos y habilitamos Xdebug
 RUN pecl install xdebug && docker-php-ext-enable xdebug
