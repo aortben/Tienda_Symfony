@@ -18,6 +18,7 @@
 
     {# Formulario global para añadir múltiples productos #}
     <form method="post" action="{{ path('anadir') }}">
+        <input type="hidden" name="categoria_id" value="{{ categoria_id }}">
         <div class="card shadow-sm">
             <div class="card-body p-0">
                 <div class="table-responsive">

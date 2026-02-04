@@ -9,7 +9,7 @@
     <nav aria-label="breadcrumb" class="mb-4">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{{ path('categorias') }}">Categorías</a></li>
-            <li class="breadcrumb-item"><a href="{{ path('productos', {'categoria_id': producto.categoria.id}) }}">{{ producto.categoria.nombre }}</a></li>
+            <li class="breadcrumb-item"><a href="{{ path('productos', {'categoria': producto.categoria.id}) }}">{{ producto.categoria.nombre }}</a></li>
             <li class="breadcrumb-item active" aria-current="page">{{ producto.nombre }}</li>
         </ol>
     </nav>
@@ -61,7 +61,7 @@
 
                     {# Botones de Acción #}
                     <div class="d-grid gap-2">
-                        <a href="{{ path('productos', {'categoria_id': producto.categoria.id}) }}" class="btn btn-outline-secondary btn-lg">
+                        <a href="{{ path('productos', {'categoria': producto.categoria.id}) }}" class="btn btn-outline-secondary btn-lg">
                             Volver al listado
                         </a>
                     </div>

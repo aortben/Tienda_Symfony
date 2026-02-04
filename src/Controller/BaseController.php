@@ -44,6 +44,7 @@ final class BaseController extends AbstractController
 
         return $this->render('productos/mostrar_productos.html.twig', [
             'productos' => $productos,
+            'categoria_id' => $categoria,
         ]);
     }
     

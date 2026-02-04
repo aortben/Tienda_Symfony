@@ -28,9 +28,13 @@
                                     <td class="text-muted small">{{ producto.descripcion }}</td>
                                     <td class="fw-bold">{{ producto.precio|number_format(2, ',', '.') }} €</td>
                                     <td>
-                                        <span class="badge bg-light text-dark border border-secondary">
-                                            {{ unidades_producto }}
-                                        </span>
+                                        <div class="d-flex align-items-center">
+                                            <a href="{{ path('disminuir_unidad', {'producto': producto.id}) }}" class="btn btn-outline-secondary btn-sm me-2">-</a>
+                                            <span class="badge bg-light text-dark border border-secondary p-2">
+                                                {{ unidades_producto }}
+                                            </span>
+                                            <a href="{{ path('aumentar_unidad', {'producto': producto.id}) }}" class="btn btn-outline-secondary btn-sm ms-2">+</a>
+                                        </div>
                                     </td>
                                     <td>
                                         <form method="POST" action="{{ path('eliminar') }}">
