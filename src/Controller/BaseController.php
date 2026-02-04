@@ -48,7 +48,6 @@ final class BaseController extends AbstractController
         ]);
     }
     
-    //POR TERMINAR ESTE METODO, ME FALTA AÑADIR  
     #[Route('/anadir', name: 'anadir')]
     public function anadir_productos(ManagerRegistry $em, Request $request, CestaCompra $cesta): Response
     {
@@ -112,21 +111,28 @@ final class BaseController extends AbstractController
     #[Route('/cesta', name: 'cesta')]
     public function cesta(CestaCompra $cesta): Response
     {
+        // MODIFICADO: Ahora pasamos el precio_total calculado por el servicio
         return $this->render('cesta/mostrar_cesta.html.twig', [
             'productos' => $cesta->get_productos(),
             'unidades'  => $cesta->get_unidades(),
+            'precio_total' => $cesta->calcular_coste() // <--- ESTO FALTABA
         ]);
+    }
+
+    // AÑADIDO: Método para vaciar la cesta
+    #[Route('/cesta/vaciar', name: 'vaciar_cesta')]
+    public function vaciar_cesta(CestaCompra $cesta): Response
+    {
+        $cesta->vaciar_cesta();
+        return $this->redirectToRoute('cesta');
     }
     
     #[Route('/eliminar', name: 'eliminar')]
     public function eliminar(Request $request, CestaCompra $cesta)
     {   
-        // CORRECCIÓN: En el formulario HTML el name es "producto_id" (singular), 
-        // no "productos_id" (plural).
         $producto_id = (int) $request->request->get("producto_id");
         $unidades = (int) $request->request->get("unidades");
         
-        // Llamamos al servicio para que haga el trabajo sucio
         $cesta->eliminar_producto($producto_id, $unidades);
         
         $this->addFlash('success', 'Producto eliminado de la cesta.');
@@ -156,83 +162,67 @@ final class BaseController extends AbstractController
     {
         $productos = $cesta->get_productos();
         $unidades = $cesta->get_unidades();
-        $error = 0; // Inicializamos variable
+        $error = 0; 
         $pedido = null;
 
         if (count($productos) == 0) {
             $error = 1; // Cesta vacía
         } else {
-            //try {
-                // 1. Crear el Pedido Cabecera
-                $pedido = new Pedido();
-                $pedido->setCoste($cesta->calcular_coste()); // Corregido typo 'cosye'
-                $pedido->setFecha(new \DateTime());
-                $pedido->setUsuario($this->getUser());
+            // 1. Crear el Pedido Cabecera
+            $pedido = new Pedido();
+            $pedido->setCoste($cesta->calcular_coste());
+            $pedido->setFecha(new \DateTime());
+            $pedido->setUsuario($this->getUser());
 
-                $em->persist($pedido);
+            $em->persist($pedido);
 
-                // 2. Crear las líneas de Pedido (PedidoProducto)
-                // 2. Crear las líneas de Pedido (PedidoProducto)
-                foreach ($productos as $productoSesion) {
-                    // TRUCO DEL ALMENDRUCO: 
-                    // No usamos el objeto de la sesión ($productoSesion) para guardar,
-                    // porque está "desconectado" y da el error de Proxy/Categoria.
-                    // Lo buscamos "fresco" en la base de datos usando su ID.
-                    
-                    $productoReal = $em->getRepository(Producto::class)->find($productoSesion->getId());
+            // 2. Crear las líneas de Pedido (PedidoProducto)
+            foreach ($productos as $productoSesion) {
+                // Buscamos "fresco" en la base de datos usando su ID.
+                $productoReal = $em->getRepository(Producto::class)->find($productoSesion->getId());
 
-                    // Si por lo que sea han borrado el producto de la BD mientras comprabas
-                    if (!$productoReal) continue;
+                if (!$productoReal) continue;
 
-                    $pedidoProducto = new PedidoProducto();
-                    $pedidoProducto->setPedido($pedido);
-                    
-                    // Aquí vinculamos con el producto REAL de la base de datos
-                    $pedidoProducto->setProducto($productoReal);
-                    
-                    $idProducto = $productoSesion->getId();
-                    $cantidad = $unidades[$idProducto] ?? 1;
-                    
-                    $pedidoProducto->setUnidades($cantidad);
-                    
-                    // Reducir stock del producto REAL
-                    $nuevoStock = $productoReal->getStock() - $cantidad;
-                    $productoReal->setStock($nuevoStock);
-
-                    // Doctrine es listo: al modificar $productoReal, él sabe que tiene que hacer UPDATE.
-                    // No hace falta hacer persist($productoReal) obligatoriamente si ya existía,
-                    // pero persist($pedidoProducto) sí es obligatorio porque es nuevo.
-                    $em->persist($pedidoProducto);
-                }
-                // Guardar todo en BD
-                $em->flush();
+                $pedidoProducto = new PedidoProducto();
+                $pedidoProducto->setPedido($pedido);
                 
-                // 3. ENVIAR CORREO (Solo si se guarda bien en BD)
-                $email = (new Email())
-                    ->from('alvaroortegabenitez03@gmail.com')
-                    ->to((string)$this->getUser()->getEmail())
-                    ->subject('Confirmación de Pedido #' . $pedido->getId())
-                    ->html($this->renderView('emails/pedido_confirmacion.html.twig', [
-                        'pedido' => $pedido,
-                        'productos' => $productos,
-                        'unidades' => $unidades
-                    ]));
-
-                $mailer->send($email);
-
-                // 4. Vaciar cesta tras compra exitosa
-                $cesta->vaciar_cesta();
+                // Aquí vinculamos con el producto REAL de la base de datos
+                $pedidoProducto->setProducto($productoReal);
                 
-                $this->addFlash('success', 'Pedido realizado correctamente. Revisa tu email para la confirmación.');
+                $idProducto = $productoSesion->getId();
+                $cantidad = $unidades[$idProducto] ?? 1;
+                
+                $pedidoProducto->setUnidades($cantidad);
+                
+                // Reducir stock del producto REAL
+                $nuevoStock = $productoReal->getStock() - $cantidad;
+                $productoReal->setStock($nuevoStock);
 
-            //} catch (\Exception $ex) {
-             //   $error = 2; 
-               // $this->addFlash('danger', 'Error al procesar el pedido: ' . $ex->getMessage());
-            //}
+                $em->persist($pedidoProducto);
+            }
+            // Guardar todo en BD
+            $em->flush();
+            
+            // 3. ENVIAR CORREO
+            $email = (new Email())
+                ->from('alvaroortegabenitez03@gmail.com')
+                ->to((string)$this->getUser()->getEmail())
+                ->subject('Confirmación de Pedido #' . $pedido->getId())
+                ->html($this->renderView('emails/pedido_confirmacion.html.twig', [
+                    'pedido' => $pedido,
+                    'productos' => $productos,
+                    'unidades' => $unidades
+                ]));
+
+            $mailer->send($email);
+
+            // 4. Vaciar cesta tras compra exitosa
+            $cesta->vaciar_cesta();
+            
+            $this->addFlash('success', 'Pedido realizado correctamente. Revisa tu email para la confirmación.');
         }
 
         return $this->render('pedido/pedido.html.twig', [
-            // Usamos null safe operator (?) por si pedido no se creó
             'pedido_id' => $pedido ? $pedido->getId() : null,
             'error' => $error
         ]);
@@ -265,8 +255,3 @@ final class BaseController extends AbstractController
         ]);
     }
 }
-
-    
-    
-    
-
