@@ -1,45 +1,89 @@
 {# templates/base.html.twig #}
 <!DOCTYPE html>
-<html>
+<html lang="es">
     <head>
         <meta charset="UTF-8">
-        <title>{% block title %}Aplicación de pedidos{% endblock %}</title>
-        <style>
-            .alert { padding: 15px; margin-bottom: 20px; border: 1px solid transparent; border-radius: 4px; }
-            .alert-danger { color: #a94442; background-color: #f2dede; border-color: #ebccd1; }
-            .alert-success { color: #3c763d; background-color: #dff0d8; border-color: #d6e9c6; }
-            .alert-warning { color: #8a6d3b; background-color: #fcf8e3; border-color: #faebcc; }
-        </style>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{% block title %}Tienda Symfony{% endblock %}</title>
+        
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+        
+        <link rel="stylesheet" href="{{ asset('css/estilos.css') }}">
+        
+        {% block stylesheets %}{% endblock %}
     </head>
-    <body>
-        {# Busca tu barra de navegación y añade esto donde quieras que salga #}
-{% if app.user %}
-    <li class="nav-item">
-        <a class="nav-link" href="{{ path('historial') }}">📜 Mis Pedidos</a>
-    </li>
-{% endif %}
-        {% block body %}
-            <header>
-                {% block header %}
-                    {{ include('cabecera.html.twig') }}
-                    <hr>
-                {% endblock %}
-            </header>
+    <body class="d-flex flex-column min-vh-100">
+        <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom sticky-top">
+            <div class="container">
 
-          
-            <div style="max-width: 800px; margin: 0 auto;">
-                {% for label, messages in app.flashes %}
-                    {% for message in messages %}
-                        <div class="alert alert-{{ label }}">
-                            {{ message }}
-                        </div>
-                    {% endfor %}
-                {% endfor %}
+                <a class="navbar-brand d-flex align-items-center" href="{{ path('categorias') }}">
+                    🎮 <span class="ms-2">Tienda Videojuegos</span>
+                </a>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto align-items-center">
+                        
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ path('categorias') }}">Catálogo</a>
+                        </li>
+
+                        {% if app.user %}
+                           
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ path('historial') }}">Mis Pedidos</a>
+                            </li>
+                            
+                            <li class="nav-item">
+                                <a class="btn btn-outline-primary btn-sm ms-2" href="{{ path('cesta') }}">
+                                    Cesta
+                                </a>
+                            </li>
+
+                            <li class="nav-item ms-3">
+                                <div class="d-flex align-items-center">
+                                    <span class="text-muted small me-2">Hola, {{ app.user.email }}</span>
+                                    <a class="btn btn-danger btn-sm" href="{{ path('logout') }}">Salir</a>
+                                </div>
+                            </li>
+                        {% else %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ path('login') }}">Iniciar Sesión</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="btn btn-primary btn-sm ms-2" href="{{ path('app_register') }}">Registrarse</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </div>
             </div>
-            {# --------------------------------------------- #}
+        </nav>
 
-            {% block contenido %}
-            {% endblock %}      
-        {% endblock %}
+        <div class="container mt-4">
+            {% for label, messages in app.flashes %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endfor %}
+        </div>
+
+        <main class="flex-grow-1">
+            {% block body %}{% endblock %}
+        </main>
+
+        <footer class="bg-white border-top py-4 mt-5 text-center text-muted">
+            <div class="container">
+                <small>&copy; {{ 'now'|date('Y') }} Tienda Symfony - Álvaro Ortega</small>
+            </div>
+        </footer>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        {% block javascripts %}{% endblock %}
     </body>
 </html>

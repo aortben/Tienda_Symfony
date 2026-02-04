@@ -1,49 +1,71 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Detalles: {{ producto.nombre }}{% endblock %}
+{% block title %}{{ producto.nombre }} - Detalles{% endblock %}
 
 {% block body %}
-<div class="container mt-5">
-    <div class="row">
-        {# Columna de la Imagen (Placeholder generado con el nombre) #}
-        <div class="col-md-5">
-            <div class="card shadow-sm">
-                <img src="https://placehold.co/600x400?text={{ producto.nombre|url_encode }}" class="card-img-top" alt="{{ producto.nombre }}">
+<div class="container my-5">
+    
+    {# Navegación auxiliar #}
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ path('categorias') }}">Categorías</a></li>
+            <li class="breadcrumb-item"><a href="{{ path('productos', {'categoria_id': producto.categoria.id}) }}">{{ producto.categoria.nombre }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ producto.nombre }}</li>
+        </ol>
+    </nav>
+
+    <div class="card shadow-sm border-0 overflow-hidden">
+        <div class="row g-0">
+            {# Columna de Imagen #}
+            <div class="col-md-6 bg-light d-flex align-items-center justify-content-center p-4">
+                <img src="https://placehold.co/600x400?text={{ producto.nombre|url_encode }}" 
+                     class="img-fluid rounded shadow-sm" 
+                     alt="{{ producto.nombre }}"
+                     style="max-height: 400px; object-fit: cover; width: 100%;">
             </div>
-        </div>
 
-        {# Columna de la Información #}
-        <div class="col-md-7">
-            <h1 class="display-5">{{ producto.nombre }}</h1>
-            <p class="text-muted">Ref: {{ producto.codigo }}</p>
-            
-            <h2 class="text-primary fw-bold my-3">{{ producto.precio|number_format(2, ',', '.') }} €</h2>
+            {# Columna de Información #}
+            <div class="col-md-6">
+                <div class="card-body p-5">
+                    <div class="mb-2">
+                        <span class="badge bg-primary">{{ producto.categoria.nombre }}</span>
+                        <span class="text-muted small ms-2">Ref: {{ producto.codigo }}</span>
+                    </div>
 
-            <div class="mb-4">
-                <h5>Descripción:</h5>
-                <p class="lead" style="font-size: 1.1rem;">{{ producto.descripcion }}</p>
-            </div>
+                    <h1 class="display-5 fw-bold mb-3">{{ producto.nombre }}</h1>
 
-            <ul class="list-group list-group-flush mb-4">
-                <li class="list-group-item">
-                    <strong>Categoría:</strong> 
-                    <span class="badge bg-info text-dark">{{ producto.categoria.nombre }}</span>
-                </li>
-                <li class="list-group-item">
-                    <strong>Stock disponible:</strong>
-                    {% if producto.stock > 0 %}
-                        <span class="badge bg-success">{{ producto.stock }} unidades</span>
-                    {% else %}
-                        <span class="badge bg-danger">Agotado</span>
-                    {% endif %}
-                </li>
-            </ul>
+                    <h2 class="text-primary fw-bold mb-4">
+                        {{ producto.precio|number_format(2, ',', '.') }} €
+                    </h2>
 
-            <div class="d-grid gap-2 d-md-block">
-                {# Botón para volver atrás #}
-                <a href="{{ path('categorias') }}" class="btn btn-outline-secondary btn-lg">
-                    &larr; Volver al catálogo
-                </a>
+                    <div class="mb-4">
+                        <h5 class="fw-bold">Descripción</h5>
+                        <p class="text-muted" style="line-height: 1.6;">
+                            {{ producto.descripcion|default('No hay descripción detallada para este artículo.') }}
+                        </p>
+                    </div>
+
+                    {# Estado del Stock #}
+                    <div class="mb-5">
+                        <h5 class="fw-bold">Disponibilidad</h5>
+                        {% if producto.stock > 0 %}
+                            <div class="alert alert-success d-inline-block py-2 px-3 m-0">
+                                En Stock ({{ producto.stock }} unidades)
+                            </div>
+                        {% else %}
+                            <div class="alert alert-danger d-inline-block py-2 px-3 m-0">
+                                Producto Agotado
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    {# Botones de Acción #}
+                    <div class="d-grid gap-2">
+                        <a href="{{ path('productos', {'categoria_id': producto.categoria.id}) }}" class="btn btn-outline-secondary btn-lg">
+                            Volver al listado
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

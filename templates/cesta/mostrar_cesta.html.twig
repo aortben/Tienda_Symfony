@@ -1,43 +1,81 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello CestaController{% endblock %}
+{% block title %}Cesta de la Compra{% endblock %}
 
 {% block body %}
-    <h1>Mostrar Cesta</h1>
-    <table>
-        <tr>
-            <th>Nombre del Producto</th>
-            <th>Descripción</th>
-            <th>Precio</th>
-            <th>Unidades</th>
-            <th>Eliminar</th>
-        </tr>
-        {% for cod, producto in productos %}
-            {% set unidades_producto = unidades[cod] %}
-            <tr>
-                <td>{{ producto.nombre }}</td>
-                <td>{{ producto.descripcion}}</td>
-                <td>{{ producto.precio}}</td>
-                <td>{{ unidades_producto }}</td>
-                <td><form method="POST" action="{{ path('eliminar') }}">
-                        <input type="number" value="1" min="1" name="unidades">
-                        <input type="hidden" name="producto_id" value="{{ producto.id }}">
-                        <input type="submit" name="eliminar_producto" value="Eliminar">
-                    </form>
-            </tr>
-            
+<div class="container my-5">
+    <h1 class="mb-4 fw-bold text-primary">Cesta de la Compra</h1>
 
-        {% endfor %}
-        <div class="mt-4 text-end">
-            {# Solo mostramos el botón si hay productos #}
     {% if productos|length > 0 %}
-        <a href="{{ path('pedido') }}" class="btn btn-success btn-lg">
-            Finalizar Compra y Pagar
-        </a>
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 25%;">Producto</th>
+                                <th style="width: 30%;">Descripción</th>
+                                <th style="width: 15%;">Precio Unit.</th>
+                                <th style="width: 10%;">Cantidad</th>
+                                <th style="width: 20%;">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for cod, producto in productos %}
+                                {% set unidades_producto = unidades[cod] %}
+                                <tr>
+                                    <td class="fw-bold text-primary">{{ producto.nombre }}</td>
+                                    <td class="text-muted small">{{ producto.descripcion }}</td>
+                                    <td class="fw-bold">{{ producto.precio|number_format(2, ',', '.') }} €</td>
+                                    <td>
+                                        <span class="badge bg-light text-dark border border-secondary">
+                                            {{ unidades_producto }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <form method="POST" action="{{ path('eliminar') }}">
+                                            <div class="input-group input-group-sm">
+                                                <input type="number" 
+                                                       value="1" 
+                                                       min="1" 
+                                                       max="{{ unidades_producto }}" 
+                                                       name="unidades" 
+                                                       class="form-control" 
+                                                       style="max-width: 60px;">
+                                                
+                                                <input type="hidden" name="producto_id" value="{{ producto.id }}">
+                                                
+                                                <button type="submit" name="eliminar_producto" class="btn btn-outline-danger">
+                                                    Eliminar
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center">
+            <a href="{{ path('categorias') }}" class="btn btn-outline-secondary">
+                Seguir Comprando
+            </a>
+            <a href="{{ path('pedido') }}" class="btn btn-success btn-lg px-5 shadow-sm">
+                Finalizar Compra y Pagar
+            </a>
+        </div>
+
     {% else %}
-        <a href="{{ path('categorias') }}" class="btn btn-primary">
-            Ir a comprar algo
-        </a>
+        <div class="alert alert-info text-center py-5 shadow-sm border-0">
+            <h4 class="alert-heading fw-bold">Tu cesta está vacía</h4>
+            <p class="mb-4 text-muted">Parece que aún no has añadido ningún videojuego a tu pedido.</p>
+            <a href="{{ path('categorias') }}" class="btn btn-primary px-4">
+                Ir al Catálogo
+            </a>
+        </div>
     {% endif %}
 </div>
-    {%endblock%}
+{% endblock %}

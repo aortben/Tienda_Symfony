@@ -1,43 +1,68 @@
-{% extends "base.html.twig" %}
+{% extends 'base.html.twig' %}
 
-{% block title %}Pedido - Tienda de Videojuegos{% endblock %}
+{% block title %}Estado del Pedido - Tienda{% endblock %}
 
 {% block body %}
-<div class="container mt-5">
+<div class="container my-5">
     <div class="row justify-content-center">
-        <div class="col-md-8">
-            {% if error == 0 %}
-                <div class="alert alert-success" role="alert">
-                    <h4 class="alert-heading">¡Pedido Confirmado!</h4>
-                    <p>Tu pedido ha sido procesado correctamente.</p>
-                    <hr>
-                    <p class="mb-0">
-                        Número de Pedido: <strong>#{{ pedido_id }}</strong>
-                    </p>
-                    <p>Recibirás un correo de confirmación en tu bandeja de entrada.</p>
+        <div class="col-md-8 col-lg-6">
+            
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-5 text-center">
+
+                    {% if error == 0 %}
+                        <h1 class="display-6 fw-bold text-success mb-3">¡Pedido Confirmado!</h1>
+                        <p class="lead text-muted mb-4">Tu pedido ha sido procesado correctamente.</p>
+
+                        <div class="bg-light rounded border p-3 mb-4">
+                            <span class="text-muted small d-block text-uppercase ls-1">Número de Pedido</span>
+                            <span class="display-6 fw-bold text-dark">#{{ pedido_id }}</span>
+                        </div>
+
+                        <p class="text-muted mb-4">
+                            Hemos enviado un correo de confirmación a tu bandeja de entrada con el resumen de la compra.
+                        </p>
+
+                        <div class="d-grid gap-2">
+                            <a href="{{ path('categorias') }}" class="btn btn-primary btn-lg">
+                                Continuar Comprando
+                            </a>
+                            <a href="{{ path('historial') }}" class="btn btn-outline-secondary">
+                                Ver mi historial
+                            </a>
+                        </div>
+
+                    {% elseif error == 1 %}
+                        {# CESTA VACÍA #}
+                        <h2 class="fw-bold text-warning mb-3">Cesta Vacía</h2>
+                        <p class="text-muted mb-4">
+                            Tu cesta no contiene productos. Por favor, añade productos antes de procesar un pedido.
+                        </p>
+                        
+                        <div class="d-grid">
+                            <a href="{{ path('categorias') }}" class="btn btn-primary btn-lg">
+                                Ir al Catálogo
+                            </a>
+                        </div>
+
+                    {% else %}
+                        {# ERROR #}
+                        <h2 class="fw-bold text-danger mb-3">Error en el Pedido</h2>
+                        <p class="text-muted mb-4">
+                            Ocurrió un error técnico al procesar tu solicitud. Por favor, inténtalo de nuevo.
+                        </p>
+                        
+                        <div class="d-grid">
+                            <a href="{{ path('cesta') }}" class="btn btn-outline-secondary btn-lg">
+                                Volver a la Cesta
+                            </a>
+                        </div>
+                    {% endif %}
+
                 </div>
-                <a href="{{ path('categorias') }}" class="btn btn-primary">
-                    Continuar Comprando
-                </a>
-            {% elseif error == 1 %}
-                <div class="alert alert-warning" role="alert">
-                    <h4 class="alert-heading">Cesta Vacía</h4>
-                    <p>Tu cesta no contiene productos. Por favor, añade productos antes de realizar un pedido.</p>
-                </div>
-                <a href="{{ path('categorias') }}" class="btn btn-primary">
-                    Volver al Catálogo
-                </a>
-            {% else %}
-                <div class="alert alert-danger" role="alert">
-                    <h4 class="alert-heading">Error en el Pedido</h4>
-                    <p>Ocurrió un error al procesar tu pedido. Por favor, intenta de nuevo más tarde.</p>
-                </div>
-                <a href="{{ path('cesta') }}" class="btn btn-primary">
-                    Volver a la Cesta
-                </a>
-            {% endif %}
+            </div>
+
         </div>
     </div>
 </div>
-{% endblock %}    
-
+{% endblock %}
