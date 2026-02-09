@@ -14,34 +14,34 @@ use App\Entity\Usuario;
 use App\Entity\Pedido;
 
 
+// Controlador principal del Dashboard de administración.
+// Es la puerta de entrada al panel de control para los administradores.
 class DashboardController extends AbstractDashboardController
 {
+    // Ruta principal del dashboard. Solo accesible si tienes permisos (configurado en security.yaml).
     #[Route('/dashboard', name: 'dashboard')] 
     public function index(): Response
     {
-        // Una vez arreglado el error de ruta, NO devuelvas parent::index() solo.
-        // EasyAdmin espera que redirijas a un CRUD o muestres una plantilla.
-        
-        // Opción recomendada para empezar: Redirigir al CRUD de Productos
-        // return $this->redirectToRoute('admin_producto_index'); 
-        
-        // O mostrar la página básica (descomenta la opción 3 de tu código original):
+        // En lugar de una página en blanco, mostramos la plantilla por defecto de EasyAdmin.
+        // Podríamos redirigir a un CRUD específico, pero así está bien para empezar.
         return $this->render('@EasyAdmin/page/content.html.twig');
     }
 
+    // Configuración básica del título del dashboard.
     public function configureDashboard(): Dashboard
     {
         return Dashboard::new()
             ->setTitle('Tienda de videojuegos');
     }
 
+    // Aquí definimos el menú lateral del panel de administración.
+    // Añadimos enlaces directos a las distintas secciones (Usuarios, Productos, etc.)
     public function configureMenuItems(): iterable
     {
-        yield MenuItem::linkToDashboard('Dashboard', 'fa fa-home');
-        yield MenuItem::linkToCrud('Usuario', 'fas fa-list', Usuario::class);
-        yield MenuItem::linkToCrud('Producto', 'fas fa-list', Producto::class);
-        yield MenuItem::linkToCrud('Categoria', 'fas fa-list', Categoria::class);
-        yield MenuItem::linkToCrud('Pedido', 'fas fa-list', Pedido::class);
-        
+        yield MenuItem::linkToDashboard('Dashboard', 'fa fa-home'); // Enlace al inicio del panel
+        yield MenuItem::linkToCrud('Usuario', 'fas fa-list', Usuario::class); // Gestión de usuarios
+        yield MenuItem::linkToCrud('Producto', 'fas fa-list', Producto::class); // Gestión de productos
+        yield MenuItem::linkToCrud('Categoria', 'fas fa-list', Categoria::class); // Gestión de categorías
+        yield MenuItem::linkToCrud('Pedido', 'fas fa-list', Pedido::class); // Gestión de pedidos
     }
 }

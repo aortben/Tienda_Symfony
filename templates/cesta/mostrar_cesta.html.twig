@@ -6,6 +6,7 @@
 <div class="container my-5">
     <h1 class="mb-4 fw-bold text-primary">Cesta de la Compra</h1>
 
+    {# Si hay productos, mostramos la tabla. Si no, un mensajito de "está vacío". #}
     {% if productos|length > 0 %}
         {% set precio_total = 0 %}
 

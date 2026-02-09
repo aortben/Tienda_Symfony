@@ -17,12 +17,14 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use SymfonyCasts\Bundle\VerifyEmail\Exception\VerifyEmailExceptionInterface;
 
+// Controlador de Registro. Todo lo que pasa cuando alguien nuevo quiere unirse.
 class RegistrationController extends AbstractController
 {
     public function __construct(private EmailVerifier $emailVerifier)
     {
     }
 
+    // Formulario de registro.
     #[Route('/register', name: 'app_register')]
     public function register(Request $request, UserPasswordHasherInterface $userPasswordHasher, Security $security, EntityManagerInterface $entityManager): Response
     {
@@ -34,13 +36,13 @@ class RegistrationController extends AbstractController
             /** @var string $plainPassword */
             $plainPassword = $form->get('plainPassword')->getData();
 
-            // encode the plain password
+            // Hash de la contraseña. Nunca guardamos texto plano, seguridad ante todo.
             $user->setPassword($userPasswordHasher->hashPassword($user, $plainPassword));
 
             $entityManager->persist($user);
             $entityManager->flush();
 
-            // generate a signed url and email it to the user
+            // Enviamos un correo para verificar que el email es de verdad suyo.
             $this->emailVerifier->sendEmailConfirmation('app_verify_email', $user,
                 (new TemplatedEmail())
                     ->from(new Address('alvaroortegabenitez03@gmail.com', 'alvaro'))
@@ -51,6 +53,7 @@ class RegistrationController extends AbstractController
 
             // do anything else you need here, like send an email
 
+            // Logueamos al usuario directamente tras registrarse, para que no tenga que meter sus datos otra vez.
             return $security->login($user, 'form_login', 'main');
         }
 
@@ -59,6 +62,7 @@ class RegistrationController extends AbstractController
     ]);
     }
 
+    // Ruta para verificar el email cuando hacen clic en el enlace del correo.
     #[Route('/verify/email', name: 'app_verify_email')]
     public function verifyUserEmail(Request $request, TranslatorInterface $translator): Response
     {

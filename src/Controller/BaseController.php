@@ -18,9 +18,12 @@ use App\Entity\Pedido;
 use App\Entity\PedidoProducto;
 use App\Services\CestaCompra;
 
+// Controlador principal de la tienda.
+// Aquí está casi toda la lógica: mostrar productos, gestionar el carrito y hacer pedidos.
 #[IsGranted('ROLE_USER')]
 final class BaseController extends AbstractController
 {
+    // Muestra todas las categorías disponibles.
     #[Route('/categorias', name: 'categorias')]
     public function mostrar_categorias(ManagerRegistry $doctrine): Response
     {
@@ -30,12 +33,13 @@ final class BaseController extends AbstractController
         ]);
     }
     
+    // Lista los productos de una categoría en concreto.
     #[Route('/productos/{categoria}', name: 'productos')]
     public function mostrar_productos(ManagerRegistry $em, int $categoria): Response
     {
         $categoriaObjeto = $em->getRepository(Categoria::class)->find($categoria);
 
-        // Si no existe la categoría → error controlado
+        // Si intentan acceder a una categoría que no existe, lanzamos error 404.
         if (!$categoriaObjeto) {
             throw $this->createNotFoundException("La categoría no existe");
         }
@@ -48,25 +52,25 @@ final class BaseController extends AbstractController
         ]);
     }
     
+    // Procesa el formulario para añadir productos al carrito.
     #[Route('/anadir', name: 'anadir')]
     public function anadir_productos(ManagerRegistry $em, Request $request, CestaCompra $cesta): Response
     {
         $productos_id = $request->request->all("productos_id");
         $unidades = $request->request->all("unidades");
         
-        // Validar que haya productos seleccionados
+        // Vamos a filtrar solo los productos que realmente quieren comprar (cantidad > 0)
         $productos_validos = [];
         $unidades_validas = [];
         
         foreach ($productos_id as $index => $producto_id) {
-            // Solo agregar si la cantidad es mayor a 0
             if (isset($unidades[$index]) && (int)$unidades[$index] > 0) {
                 $productos_validos[] = (int)$producto_id;
                 $unidades_validas[] = (int)$unidades[$index];
             }
         }
         
-        // Si no hay productos válidos, redirigir de vuelta
+        // Si no han elegido nada, les avisamos y les devolvemos a la lista.
         if (empty($productos_validos)) {
             $this->addFlash('warning', 'Por favor selecciona al menos un producto.');
             return $this->redirectToRoute("productos", [
@@ -74,10 +78,10 @@ final class BaseController extends AbstractController
             ]);
         }
         
-        // Obtener array de productos
+        // Recuperamos los objetos Producto de la base de datos.
         $productos = $em->getRepository(Producto::class)->findBy(['id' => $productos_validos]);
         
-        // Validar stock disponible
+        // COMPROBACIÓN DE STOCK: Antes de meter en la cesta, miramos si hay suficientes.
         foreach ($productos as $producto) {
             $index = array_search($producto->getId(), $productos_validos);
             if ($producto->getStock() < $unidades_validas[$index]) {
@@ -92,15 +96,13 @@ final class BaseController extends AbstractController
             }
         }
         
-        // Cargar productos a la cesta
+        // Todo en orden, guardamos en la sesión (CestaCompra).
         $cesta->cargar_productos($productos, $unidades_validas);
         
         $this->addFlash('success', 'Producto(s) agregado a la cesta correctamente.');
 
-        // Convertir array asociativo en array indexado
+        // Un pequeño truco para saber a qué categoría volver
         $objetos_producto = array_values($productos);
-
-        // Obtener ID de categoría del producto
         $categoria_id = $objetos_producto[0]->getCategoria()->getId();
 
         return $this->redirectToRoute("productos", [
@@ -108,18 +110,18 @@ final class BaseController extends AbstractController
         ]);
     }
     
+    // Vista de la cesta de la compra.
     #[Route('/cesta', name: 'cesta')]
     public function cesta(CestaCompra $cesta): Response
     {
-        // MODIFICADO: Ahora pasamos el precio_total calculado por el servicio
+        // Pasamos todo lo necesario para pintar la cesta, incluido el precio total calculado en el servicio.
         return $this->render('cesta/mostrar_cesta.html.twig', [
             'productos' => $cesta->get_productos(),
             'unidades'  => $cesta->get_unidades(),
-            'precio_total' => $cesta->calcular_coste() // <--- ESTO FALTABA
+            'precio_total' => $cesta->calcular_coste() 
         ]);
     }
 
-    // AÑADIDO: Método para vaciar la cesta
     #[Route('/cesta/vaciar', name: 'vaciar_cesta')]
     public function vaciar_cesta(CestaCompra $cesta): Response
     {
@@ -127,6 +129,7 @@ final class BaseController extends AbstractController
         return $this->redirectToRoute('cesta');
     }
     
+    // Elimina un producto concreto de la cesta.
     #[Route('/eliminar', name: 'eliminar')]
     public function eliminar(Request $request, CestaCompra $cesta)
     {   
@@ -156,7 +159,7 @@ final class BaseController extends AbstractController
         return $this->redirectToRoute('cesta');
     }
 
-      #METODO PARA HACER UN PEDIDO
+    // ¡El momento de la verdad! Crear el pedido y cobrar (bueno, simular que cobramos).
     #[Route('/pedido', name: 'pedido')]
     public function pedidos(CestaCompra $cesta, EntityManagerInterface $em, MailerInterface $mailer): Response
     {
@@ -173,18 +176,18 @@ final class BaseController extends AbstractController
             ]);
         }
 
-        // 1. Validaciones previas y cálculo de coste real
+        // 1. Validaciones de stock y cálculo de precio real (nada de fiarse de la sesión).
         $costeTotalReal = 0;
         $productosParaProcesar = [];
 
         foreach ($productosSesion as $productoSesion) {
             $idProducto = $productoSesion->getId();
             
-            // Buscar producto fresco en BD para asegurar precio y stock actual
+            // Buscamos el producto en la base de datos para tener datos frescos.
             $productoReal = $em->getRepository(Producto::class)->find($idProducto);
 
             if (!$productoReal) {
-                // Si un producto ya no existe, lo quitamos de la cesta y avisamos
+                // Ups, alguien borró el producto mientras comprabas.
                 $cesta->eliminar_producto($idProducto, $unidadesSesion[$idProducto]);
                 $this->addFlash('danger', 'Un producto de tu cesta ya no está disponible.');
                 return $this->redirectToRoute('cesta');
@@ -192,7 +195,7 @@ final class BaseController extends AbstractController
 
             $cantidad = $unidadesSesion[$idProducto] ?? 1;
 
-            // Validar Stock
+            // Segunda comprobación de Stock (CRÍTICA).
             if ($productoReal->getStock() < $cantidad) {
                 $this->addFlash('danger', sprintf(
                     'No hay suficiente stock para %s. Disponible: %d, Solicitado: %d',
@@ -205,22 +208,21 @@ final class BaseController extends AbstractController
 
             $costeTotalReal += $productoReal->getPrecio() * $cantidad;
             
-            // Guardamos el par (entidad real, cantidad) para usarlo después
             $productosParaProcesar[] = [
                 'producto' => $productoReal,
                 'cantidad' => $cantidad
             ];
         }
 
-        // 2. Crear el Pedido Cabecera
+        // 2. Creamos el pedido "padre".
         $pedido = new Pedido();
-        $pedido->setCoste($costeTotalReal); // Usamos el coste recalculado con precios actuales
+        $pedido->setCoste($costeTotalReal); // Guardamos lo que ha costado de verdad HOY.
         $pedido->setFecha(new \DateTime());
         $pedido->setUsuario($this->getUser());
 
         $em->persist($pedido);
 
-        // 3. Crear las líneas de Pedido y actualizar Stock
+        // 3. Creamos las líneas del pedido y restamos stock.
         foreach ($productosParaProcesar as $item) {
             /** @var Producto $productoReal */
             $productoReal = $item['producto'];
@@ -231,20 +233,20 @@ final class BaseController extends AbstractController
             $pedidoProducto->setProducto($productoReal);
             $pedidoProducto->setUnidades($cantidad);
             
-            // ¡IMPORTANTE! Guardar el precio histórico (snapshot)
+            // IMPORTANTE: Guardamos el precio al que se compró, por si sube mañana.
             $pedidoProducto->setPrecio($productoReal->getPrecio());
             
-            // Reducir stock
+            // Actualizamos el stock disponible.
             $nuevoStock = $productoReal->getStock() - $cantidad;
             $productoReal->setStock($nuevoStock);
 
             $em->persist($pedidoProducto);
         }
 
-        // Guardar todo en BD
+        // Guardamos todo en la base de datos de una vez.
         $em->flush();
         
-        // 4. ENVIAR CORREO
+        // 4. Enviamos el correo de confirmación.
         try {
             $email = (new Email())
                 ->from('alvaroortegabenitez03@gmail.com')
@@ -252,17 +254,17 @@ final class BaseController extends AbstractController
                 ->subject('Confirmación de Pedido #' . $pedido->getId())
                 ->html($this->renderView('emails/pedido_confirmacion.html.twig', [
                     'pedido' => $pedido,
-                    'productos' => $productosSesion, // Usamos los de sesión para la vista rápida o recargamos del pedido
+                    'productos' => $productosSesion, 
                     'unidades' => $unidadesSesion
                 ]));
 
             $mailer->send($email);
         } catch (\Exception $e) {
-            // Loguear error de correo pero no detener el flujo de éxito
+            // Si falla el correo, no paramos la compra, solo lo registramos (si tuviéramos logger).
             // $this->logger->error('Error enviando correo: ' . $e->getMessage());
         }
 
-        // 5. Vaciar cesta tras compra exitosa
+        // 5. Borrón y cuenta nueva: vaciamos la cesta.
         $cesta->vaciar_cesta();
         
         $this->addFlash('success', 'Pedido realizado correctamente. Revisa tu email para la confirmación.');
@@ -273,6 +275,7 @@ final class BaseController extends AbstractController
         ]);
     }
     
+    // Vista de detalles de un producto.
     #[Route('/producto/{id}', name: 'detalles')]
     public function detalles(Producto $producto): Response
     {
@@ -281,15 +284,18 @@ final class BaseController extends AbstractController
         ]);
     }
     
+    // Historial de pedidos del usuario.
     #[Route('/historial', name: 'historial')] 
     public function historial(ManagerRegistry $doctrine): Response
     {
         $user = $this->getUser();
         
+        // Comprobación de seguridad extra (aunque el firewall ya debería bloquear).
         if (!$user) {
             return $this->redirectToRoute('login');
         }
 
+        // Buscamos los pedidos ordenados del más reciente al más antiguo.
         $pedidos = $doctrine->getRepository(Pedido::class)->findBy(
             ['usuario' => $user], 
             ['fecha' => 'DESC']

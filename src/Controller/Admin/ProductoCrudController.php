@@ -11,8 +11,10 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\MoneyField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
+// Controlador para administrar los Productos.
 class ProductoCrudController extends AbstractCrudController
 {
+    // Asociamos con la entidad Producto.
     public static function getEntityFqcn(): string
     {
         return Producto::class;
@@ -26,6 +28,18 @@ class ProductoCrudController extends AbstractCrudController
             ->add('categoria');
     }
 
+    /*
+    public function configureFields(string $pageName): iterable
+    {
+        // Aquí podríamos añadir campos especiales, como uno de tipo Imagen para subir fotos,
+        // o selectores para la categoría. De momento, usamos lo básico.
+        return [
+            IdField::new('id'),
+            TextField::new('title'),
+            TextEditorField::new('description'),
+        ];
+    }
+    */
     public function configureFields(string $pageName): iterable
     {
         yield TextField::new('nombre');

@@ -5,10 +5,13 @@
 {% block body %}
 <div class="container my-5">
     <div class="row justify-content-center">
-        <div class="col-md-6 col-lg-4">
-            
-            <div class="card shadow-sm border-0">
-                <div class="card-body p-4">
+        <div class="col-md-6 col-lg-5">
+            {# Tarjeta de Login centrada y bonita #}
+            <div class="card shadow-lg border-0 rounded-lg">
+                <div class="card-header bg-primary text-white text-center py-4">
+                    <h3 class="fw-bold mb-0">Bienvenido de nuevo</h3>
+                </div>
+                <div class="card-body p-5">
                     <h1 class="h3 mb-4 fw-normal text-center text-primary fw-bold">Iniciar Sesión</h1>
 
                     <form method="post" action="{{ path('app_login') }}">
@@ -21,7 +24,7 @@
 
                         {% if app.user %}
                             <div class="alert alert-info py-2 small mb-3">
-                                Ya has iniciado sesión como {{ app.user.userIdentifier }}, <a href="{{ path('logout') }}" class="alert-link">Salir</a>
+                                Ya has iniciado sesión como {{ app.user.userIdentifier }}, <a href="{{ path('app_logout') }}" class="alert-link">Salir</a>
                             </div>
                         {% endif %}
 

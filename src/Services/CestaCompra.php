@@ -5,11 +5,13 @@ namespace App\Services;
 use Symfony\Component\HttpFoundation\RequestStack;
 use App\Entity\Producto;
 
+// Servicio "carrito de la compra". 
+// Aquí guardamos qué productos quiere el usuario y cuántos, usando la sesión para que no se pierdan al recargar.
 class CestaCompra {
     
     protected $requestStack;
-    protected $productos = [];
-    protected $unidades = [];
+    protected $productos = []; // Lista de productos (objetos)
+    protected $unidades = [];  // Lista de cantidad por producto (id_producto => cantidad)
 
     public function __construct(RequestStack $requestStack) {
         $this->requestStack = $requestStack;

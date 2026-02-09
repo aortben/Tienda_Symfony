@@ -1,16 +1,17 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Categorías - Tienda{% endblock %}
+{% block title %}Categorías{% endblock %}
 
 {% block body %}
 <div class="container my-5">
     {# Encabezado #}
     <div class="text-center mb-5">
-        <h1 class="display-5 fw-bold text-primary">Categorías de Videojuegos</h1>
-        <p class="lead text-muted">Explora nuestra colección seleccionando una categoría</p>
+        <h1 class="display-4 fw-bold text-primary">Nuestro Catálogo</h1>
+        <p class="lead text-muted">Explora las mejores categorías de videojuegos</p>
     </div>
 
-    <div class="row justify-content-center">
+    {# Grid de categorías. Iteramos sobre la variable 'categorias' que nos pasa el Controller #}
+    <div class="row row-cols-1 row-cols-md-3 g-4">
         {% for categoria in categorias %}
             <div class="col-md-4 mb-4">
 

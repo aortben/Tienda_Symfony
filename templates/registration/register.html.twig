@@ -3,22 +3,12 @@
 {% block title %}Registro{% endblock %}
 
 {% block body %}
-<div class="container mt-5">
+{#
+    Formulario de registro.
+    Usamos 'form_start' y 'form_end' para que Symfony pinte todo lo necesario (CSRF tokens, etc).
+#}
+<div class="container my-5">
     <div class="row justify-content-center">
-        <div class="col-md-6">
-            <h1>Registro de Usuario</h1>
-            <hr>
-
-            {{ form_start(registrationForm) }}
-                
-                <div class="mb-3">
-                    {{ form_row(registrationForm.login) }}
-                </div>
-
-                <div class="mb-3">
-                    {{ form_row(registrationForm.email) }}
-                </div>
-
                 <div class="mb-3">
                     {{ form_row(registrationForm.plainPassword) }}
                 </div>
