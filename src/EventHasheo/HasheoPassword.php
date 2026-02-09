@@ -33,13 +33,19 @@ class HasheoPassword implements EventSubscriberInterface
             return;
         }
 
-        if (!$entity->getPassword()) {
+        $plainPassword = $entity->getPassword();
+
+        if (!$plainPassword) {
+            return;
+        }
+
+        if (strlen($plainPassword) >= 60 && str_starts_with($plainPassword, '$2y$')) {
             return;
         }
 
         $hashedPassword = $this->passwordHasher->hashPassword(
             $entity,
-            $entity->getPassword()
+            $plainPassword
         );
 
         $entity->setPassword($hashedPassword);

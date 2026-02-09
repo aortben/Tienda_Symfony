@@ -43,6 +43,14 @@
                                 </a>
                             </li>
 
+                            {% if is_granted('ROLE_ADMIN') %}
+                                <li class="nav-item">
+                                    <a class="btn btn-warning btn-sm ms-2" href="{{ path('dashboard') }}">
+                                        Dashboard
+                                    </a>
+                                </li>
+                            {% endif %}
+
                             <li class="nav-item ms-3">
                                 <div class="d-flex align-items-center">
                                     <span class="text-muted small me-2">Hola, {{ app.user.email }}</span>

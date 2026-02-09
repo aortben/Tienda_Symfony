@@ -23,11 +23,11 @@ security:
                 login_path: app_login
                 check_path: app_login
                 enable_csrf: true
-                default_target_path: admin
+                default_target_path: app_home
                 always_use_default_target_path: true
             logout:
                 path: app_logout
-                target: app_login
+                target: app_home
 
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#the-firewall
@@ -39,7 +39,7 @@ security:
         # Importante: Permitir acceso público al login para no crear un bucle infinito
         - { path: ^/login, roles: PUBLIC_ACCESS }
         # Proteger el panel de admin
-        - { path: ^/admin, roles: ROLE_USER }
+        - { path: ^/dashboard, roles: ROLE_ADMIN }
         # - { path: ^/profile, roles: ROLE_USER }
 
 when@test:
