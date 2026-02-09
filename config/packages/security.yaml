@@ -9,7 +9,7 @@ security:
         app_user_provider:
             entity:
                 class: App\Entity\Usuario
-                property: login
+                property: email
 
     firewalls:
         dev:
@@ -20,22 +20,27 @@ security:
             lazy: true
             provider: app_user_provider
             form_login:
-                login_path: login
-                check_path: login
+                login_path: app_login
+                check_path: app_login
                 enable_csrf: true
-                default_target_path: app_home
+                default_target_path: admin
                 always_use_default_target_path: true
             logout:
-                path: /logout
+                path: app_logout
+                target: app_login
+
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#the-firewall
-            # switch_user: true  # descomentar si quieres impersonar usuarios
+            # switch_user: true
 
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
-        - { path: ^/admin, roles: ROLE_ADMIN }
-        - { path: ^/profile, roles: ROLE_USER }
+        # Importante: Permitir acceso público al login para no crear un bucle infinito
+        - { path: ^/login, roles: PUBLIC_ACCESS }
+        # Proteger el panel de admin
+        - { path: ^/admin, roles: ROLE_USER }
+        # - { path: ^/profile, roles: ROLE_USER }
 
 when@test:
     security:
@@ -46,6 +51,6 @@ when@test:
             # reduces the work factor to the lowest possible values.
             Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface:
                 algorithm: auto
-                cost: 12 # Lowest possible value for bcrypt
-                time_cost: 3 # Lowest posible value for argon
-                memory_cost: 10 # Lowest posible value for argon
+                cost: 4 # Lowest possible value for bcrypt
+                time_cost: 3 # Lowest possible value for argon
+                memory_cost: 10 # Lowest possible value for argon

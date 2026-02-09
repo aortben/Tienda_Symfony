@@ -14,7 +14,7 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y \
     autoconf \
     gcc \
     make \
-    libicu-dev
+    libicu-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Extensiones PHP

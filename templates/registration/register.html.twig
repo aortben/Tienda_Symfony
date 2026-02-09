@@ -1,6 +1,6 @@
-{% extends "base.html.twig" %}
+{% extends 'base.html.twig' %}
 
-{% block title %}Registro - Tienda de Videojuegos{% endblock %}
+{% block title %}Registro{% endblock %}
 
 {% block body %}
 <div class="container mt-5">
@@ -8,26 +8,38 @@
         <div class="col-md-6">
             <h1>Registro de Usuario</h1>
             <hr>
-            
+
             {{ form_start(registrationForm) }}
-                <div class="form-group mb-3">
-                    {{ form_row(registrationForm.email, {'attr': {'class': 'form-control'}}) }}
-                </div>
                 
-                <div class="form-group mb-3">
+                <div class="mb-3">
+                    {{ form_row(registrationForm.login, {
+                        'label': 'Nombre de Usuario',
+                        'attr': {'class': 'form-control'}
+                    }) }}
+                </div>
+
+                <div class="mb-3">
+                    {{ form_row(registrationForm.email, {
+                        'label': 'Correo Electrónico',
+                        'attr': {'class': 'form-control'}
+                    }) }}
+                </div>
+
+                <div class="mb-3">
                     {{ form_row(registrationForm.plainPassword, {
                         'label': 'Contraseña',
                         'attr': {'class': 'form-control'}
                     }) }}
                 </div>
-                
-                <div class="form-check mb-3">
+
+                <div class="mb-3 form-check">
                     {{ form_widget(registrationForm.agreeTerms, {'attr': {'class': 'form-check-input'}}) }}
                     {{ form_label(registrationForm.agreeTerms, 'Acepto los términos y condiciones', {'label_attr': {'class': 'form-check-label'}}) }}
                 </div>
 
                 <button type="submit" class="btn btn-primary">Registrarse</button>
                 <a href="{{ path('login') }}" class="btn btn-secondary">¿Ya tienes cuenta?</a>
+
             {{ form_end(registrationForm) }}
         </div>
     </div>

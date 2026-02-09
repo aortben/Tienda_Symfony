@@ -17,7 +17,7 @@ class Producto
     #[ORM\Column(type: Types::FLOAT, precision: 10, scale: 2)]
     private ?float $precio = null;
 
-    #[ORM\Column(length: 6)]
+    #[ORM\Column(length: 50)] 
     private ?string $codigo = null;
 
     #[ORM\Column(length: 255)]
@@ -35,6 +35,9 @@ class Producto
 
     #[ORM\Column(type: Types::INTEGER)]
     private ?int $stock = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $imagen = null;
 
     public function getId(): ?int
     {
@@ -121,6 +124,18 @@ class Producto
     public function setStock(int $stock): static
     {
         $this->stock = $stock;
+
+        return $this;
+    }
+
+    public function getImagen(): ?string
+    {
+        return $this->imagen;
+    }
+
+    public function setImagen(?string $imagen): static
+    {
+        $this->imagen = $imagen;
 
         return $this;
     }

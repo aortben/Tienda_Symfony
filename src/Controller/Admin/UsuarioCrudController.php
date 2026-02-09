@@ -3,8 +3,9 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Usuario;
-use EasyCorp\Bundle\EasyAdminBundle\Config\Filters; // <--- IMPORTANTE
+use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
 class UsuarioCrudController extends AbstractCrudController
 {
@@ -16,9 +17,12 @@ class UsuarioCrudController extends AbstractCrudController
     public function configureFilters(Filters $filters): Filters
     {
         return $filters
-            ->add('email') // Buscador de texto por email
-            // Si tienes un campo 'nombre' o 'username', añádelo aquí también:
-            // ->add('nombre') 
-        ;
+            ->add('email');
+    }
+
+    public function configureFields(string $pageName): iterable
+    {
+        yield TextField::new('email');
+        yield TextField::new('password');
     }
 }
