@@ -46,12 +46,12 @@
                             <li class="nav-item ms-3">
                                 <div class="d-flex align-items-center">
                                     <span class="text-muted small me-2">Hola, {{ app.user.email }}</span>
-                                    <a class="btn btn-danger btn-sm" href="{{ path('logout') }}">Salir</a>
+                                    <a class="btn btn-danger btn-sm" href="{{ path('app_logout') }}">Salir</a>
                                 </div>
                             </li>
                         {% else %}
                             <li class="nav-item">
-                                <a class="nav-link" href="{{ path('login') }}">Iniciar Sesión</a>
+                                <a class="nav-link" href="{{ path('app_login') }}">Iniciar Sesión</a>
                             </li>
                             <li class="nav-item">
                                 <a class="btn btn-primary btn-sm ms-2" href="{{ path('app_register') }}">Registrarse</a>

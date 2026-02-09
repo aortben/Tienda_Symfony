@@ -6,11 +6,15 @@ use App\Repository\UsuarioRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UsuarioRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_LOGIN', fields: ['login'])]
+#[UniqueEntity(fields: ['login'], message: 'Este nombre de usuario ya está en uso.')]
+#[UniqueEntity(fields: ['email'], message: 'Este correo electrónico ya está en uso.')]
 class Usuario implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
@@ -19,6 +23,7 @@ class Usuario implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $id = null;
 
     #[ORM\Column(length: 180)]
+    #[Assert\NotBlank(message: 'El nombre de usuario no puede estar vacío.')]
     private ?string $login = null;
 
     /**
@@ -34,13 +39,15 @@ class Usuario implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $password = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: 'El email no puede estar vacío.')]
+    #[Assert\Email(message: 'El email "{{ value }}" no es un correo electrónico válido.')]
     private ?string $email = null;
 
     #[ORM\Column(length: 20, nullable: true)]
     private ?string $phone = null;
 
     /**
-     * @var Collection<int, PEedido>
+     * @var Collection<int, Pedido>
      */
     #[ORM\OneToMany(targetEntity: Pedido::class, mappedBy: 'usuario')]
     private Collection $pedidos;
@@ -156,29 +163,29 @@ class Usuario implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
-     * @return Collection<int, PEedido>
+     * @return Collection<int, Pedido>
      */
-    public function getPEedidos(): Collection
+    public function getPedidos(): Collection
     {
-        return $this->pEedidos;
+        return $this->pedidos;
     }
 
-    public function addPEedido(PEedido $pEedido): static
+    public function addPedido(Pedido $pedido): static
     {
-        if (!$this->pEedidos->contains($pEedido)) {
-            $this->pEedidos->add($pEedido);
-            $pEedido->setUsuario($this);
+        if (!$this->pedidos->contains($pedido)) {
+            $this->pedidos->add($pedido);
+            $pedido->setUsuario($this);
         }
 
         return $this;
     }
 
-    public function removePEedido(PEedido $pEedido): static
+    public function removePedido(Pedido $pedido): static
     {
-        if ($this->pEedidos->removeElement($pEedido)) {
+        if ($this->pedidos->removeElement($pedido)) {
             // set the owning side to null (unless already changed)
-            if ($pEedido->getUsuario() === $this) {
-                $pEedido->setUsuario(null);
+            if ($pedido->getUsuario() === $this) {
+                $pedido->setUsuario(null);
             }
         }
 

@@ -12,33 +12,25 @@
             {{ form_start(registrationForm) }}
                 
                 <div class="mb-3">
-                    {{ form_row(registrationForm.login, {
-                        'label': 'Nombre de Usuario',
-                        'attr': {'class': 'form-control'}
-                    }) }}
+                    {{ form_row(registrationForm.login) }}
                 </div>
 
                 <div class="mb-3">
-                    {{ form_row(registrationForm.email, {
-                        'label': 'Correo Electrónico',
-                        'attr': {'class': 'form-control'}
-                    }) }}
+                    {{ form_row(registrationForm.email) }}
                 </div>
 
                 <div class="mb-3">
-                    {{ form_row(registrationForm.plainPassword, {
-                        'label': 'Contraseña',
-                        'attr': {'class': 'form-control'}
-                    }) }}
+                    {{ form_row(registrationForm.plainPassword) }}
                 </div>
 
-                <div class="mb-3 form-check">
-                    {{ form_widget(registrationForm.agreeTerms, {'attr': {'class': 'form-check-input'}}) }}
-                    {{ form_label(registrationForm.agreeTerms, 'Acepto los términos y condiciones', {'label_attr': {'class': 'form-check-label'}}) }}
+                <div class="mb-3">
+                    {{ form_row(registrationForm.agreeTerms, {
+                        'label': 'Acepto los términos y condiciones'
+                    }) }}
                 </div>
 
                 <button type="submit" class="btn btn-primary">Registrarse</button>
-                <a href="{{ path('login') }}" class="btn btn-secondary">¿Ya tienes cuenta?</a>
+                <a href="{{ path('app_login') }}" class="btn btn-secondary">¿Ya tienes cuenta?</a>
 
             {{ form_end(registrationForm) }}
         </div>
