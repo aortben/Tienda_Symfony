@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\PedidoProductoRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\DBAL\Types\Types;
 
 #[ORM\Entity(repositoryClass: PedidoProductoRepository::class)]
 class PedidoProducto
@@ -23,6 +24,9 @@ class PedidoProducto
 
     #[ORM\Column]
     private ?int $unidades = null;
+
+    #[ORM\Column(type: Types::FLOAT, precision: 10, scale: 2)]
+    private ?float $precio = null;
 
     public function getId(): ?int
     {
@@ -61,6 +65,18 @@ class PedidoProducto
     public function setUnidades(int $unidades): static
     {
         $this->unidades = $unidades;
+
+        return $this;
+    }
+
+    public function getPrecio(): ?float
+    {
+        return $this->precio;
+    }
+
+    public function setPrecio(float $precio): static
+    {
+        $this->precio = $precio;
 
         return $this;
     }

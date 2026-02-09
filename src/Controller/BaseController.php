@@ -160,71 +160,116 @@ final class BaseController extends AbstractController
     #[Route('/pedido', name: 'pedido')]
     public function pedidos(CestaCompra $cesta, EntityManagerInterface $em, MailerInterface $mailer): Response
     {
-        $productos = $cesta->get_productos();
-        $unidades = $cesta->get_unidades();
+        $productosSesion = $cesta->get_productos();
+        $unidadesSesion = $cesta->get_unidades();
         $error = 0; 
         $pedido = null;
 
-        if (count($productos) == 0) {
+        if (count($productosSesion) == 0) {
             $error = 1; // Cesta vacía
-        } else {
-            // 1. Crear el Pedido Cabecera
-            $pedido = new Pedido();
-            $pedido->setCoste($cesta->calcular_coste());
-            $pedido->setFecha(new \DateTime());
-            $pedido->setUsuario($this->getUser());
+            return $this->render('pedido/pedido.html.twig', [
+                'pedido_id' => null,
+                'error' => $error
+            ]);
+        }
 
-            $em->persist($pedido);
+        // 1. Validaciones previas y cálculo de coste real
+        $costeTotalReal = 0;
+        $productosParaProcesar = [];
 
-            // 2. Crear las líneas de Pedido (PedidoProducto)
-            foreach ($productos as $productoSesion) {
-                // Buscamos "fresco" en la base de datos usando su ID.
-                $productoReal = $em->getRepository(Producto::class)->find($productoSesion->getId());
-
-                if (!$productoReal) continue;
-
-                $pedidoProducto = new PedidoProducto();
-                $pedidoProducto->setPedido($pedido);
-                
-                // Aquí vinculamos con el producto REAL de la base de datos
-                $pedidoProducto->setProducto($productoReal);
-                
-                $idProducto = $productoSesion->getId();
-                $cantidad = $unidades[$idProducto] ?? 1;
-                
-                $pedidoProducto->setUnidades($cantidad);
-                
-                // Reducir stock del producto REAL
-                $nuevoStock = $productoReal->getStock() - $cantidad;
-                $productoReal->setStock($nuevoStock);
-
-                $em->persist($pedidoProducto);
-            }
-            // Guardar todo en BD
-            $em->flush();
+        foreach ($productosSesion as $productoSesion) {
+            $idProducto = $productoSesion->getId();
             
-            // 3. ENVIAR CORREO
+            // Buscar producto fresco en BD para asegurar precio y stock actual
+            $productoReal = $em->getRepository(Producto::class)->find($idProducto);
+
+            if (!$productoReal) {
+                // Si un producto ya no existe, lo quitamos de la cesta y avisamos
+                $cesta->eliminar_producto($idProducto, $unidadesSesion[$idProducto]);
+                $this->addFlash('danger', 'Un producto de tu cesta ya no está disponible.');
+                return $this->redirectToRoute('cesta');
+            }
+
+            $cantidad = $unidadesSesion[$idProducto] ?? 1;
+
+            // Validar Stock
+            if ($productoReal->getStock() < $cantidad) {
+                $this->addFlash('danger', sprintf(
+                    'No hay suficiente stock para %s. Disponible: %d, Solicitado: %d',
+                    $productoReal->getNombre(),
+                    $productoReal->getStock(),
+                    $cantidad
+                ));
+                return $this->redirectToRoute('cesta');
+            }
+
+            $costeTotalReal += $productoReal->getPrecio() * $cantidad;
+            
+            // Guardamos el par (entidad real, cantidad) para usarlo después
+            $productosParaProcesar[] = [
+                'producto' => $productoReal,
+                'cantidad' => $cantidad
+            ];
+        }
+
+        // 2. Crear el Pedido Cabecera
+        $pedido = new Pedido();
+        $pedido->setCoste($costeTotalReal); // Usamos el coste recalculado con precios actuales
+        $pedido->setFecha(new \DateTime());
+        $pedido->setUsuario($this->getUser());
+
+        $em->persist($pedido);
+
+        // 3. Crear las líneas de Pedido y actualizar Stock
+        foreach ($productosParaProcesar as $item) {
+            /** @var Producto $productoReal */
+            $productoReal = $item['producto'];
+            $cantidad = $item['cantidad'];
+
+            $pedidoProducto = new PedidoProducto();
+            $pedidoProducto->setPedido($pedido);
+            $pedidoProducto->setProducto($productoReal);
+            $pedidoProducto->setUnidades($cantidad);
+            
+            // ¡IMPORTANTE! Guardar el precio histórico (snapshot)
+            $pedidoProducto->setPrecio($productoReal->getPrecio());
+            
+            // Reducir stock
+            $nuevoStock = $productoReal->getStock() - $cantidad;
+            $productoReal->setStock($nuevoStock);
+
+            $em->persist($pedidoProducto);
+        }
+
+        // Guardar todo en BD
+        $em->flush();
+        
+        // 4. ENVIAR CORREO
+        try {
             $email = (new Email())
                 ->from('alvaroortegabenitez03@gmail.com')
                 ->to((string)$this->getUser()->getEmail())
                 ->subject('Confirmación de Pedido #' . $pedido->getId())
                 ->html($this->renderView('emails/pedido_confirmacion.html.twig', [
                     'pedido' => $pedido,
-                    'productos' => $productos,
-                    'unidades' => $unidades
+                    'productos' => $productosSesion, // Usamos los de sesión para la vista rápida o recargamos del pedido
+                    'unidades' => $unidadesSesion
                 ]));
 
             $mailer->send($email);
-
-            // 4. Vaciar cesta tras compra exitosa
-            $cesta->vaciar_cesta();
-            
-            $this->addFlash('success', 'Pedido realizado correctamente. Revisa tu email para la confirmación.');
+        } catch (\Exception $e) {
+            // Loguear error de correo pero no detener el flujo de éxito
+            // $this->logger->error('Error enviando correo: ' . $e->getMessage());
         }
 
+        // 5. Vaciar cesta tras compra exitosa
+        $cesta->vaciar_cesta();
+        
+        $this->addFlash('success', 'Pedido realizado correctamente. Revisa tu email para la confirmación.');
+
         return $this->render('pedido/pedido.html.twig', [
-            'pedido_id' => $pedido ? $pedido->getId() : null,
-            'error' => $error
+            'pedido_id' => $pedido->getId(),
+            'error' => 0
         ]);
     }
     
