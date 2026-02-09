@@ -118,4 +118,9 @@ class Pedido
 
         return $this;
     }
+
+    public function __toString(): string
+    {
+        return 'Pedido #' . $this->id;
+    }
 }

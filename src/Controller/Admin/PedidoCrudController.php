@@ -3,6 +3,7 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Pedido;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
@@ -30,9 +31,9 @@ class PedidoCrudController extends AbstractCrudController
     }
     */
 
-    public function configuraFilters(Filters $filters): Filters {
+    public function configureFilters(Filters $filters): Filters {
         return $filters
-                ->add('fechaPedido')
+                ->add('fecha')
                 ->add('usuario')
                 ;
     }
