@@ -20,14 +20,14 @@ security:
             lazy: true
             provider: app_user_provider
             form_login:
-                login_path: login
-                check_path: login
+                login_path: app_login
+                check_path: app_login
                 enable_csrf: true
-                default_target_path: app_home
+                default_target_path: app_categorias # Cambia app_home por el nombre de tu ruta principal si falla
                 always_use_default_target_path: true
             logout:
-                path: logout
-                target: app_home
+                path: app_logout
+                target: /categorias
 
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#the-firewall
