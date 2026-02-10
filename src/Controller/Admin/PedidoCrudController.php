@@ -18,18 +18,14 @@ class PedidoCrudController extends AbstractCrudController
         return Pedido::class;
     }
 
-    /*
     public function configureFields(string $pageName): iterable
     {
-        // Igual que en categorías, dejamos que EasyAdmin decida qué campos mostrar.
-        // Si quisiéramos ocultar algo o cambiar el formato, lo haríamos aquí.
-        return [
-            IdField::new('id'),
-            TextField::new('title'),
-            TextEditorField::new('description'),
-        ];
+        yield IdField::new('id')->hideOnForm();
+        yield \EasyCorp\Bundle\EasyAdminBundle\Field\DateField::new('fecha');
+        yield \EasyCorp\Bundle\EasyAdminBundle\Field\MoneyField::new('coste')->setCurrency('EUR')->setStoredAsCents(false);
+        yield \EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField::new('usuario');
+        yield \EasyCorp\Bundle\EasyAdminBundle\Field\CollectionField::new('pedidoProductos')->hideOnForm();
     }
-    */
 
     public function configureFilters(Filters $filters): Filters {
         return $filters

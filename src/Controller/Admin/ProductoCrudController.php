@@ -42,10 +42,16 @@ class ProductoCrudController extends AbstractCrudController
     */
     public function configureFields(string $pageName): iterable
     {
+        yield TextField::new('codigo');
         yield TextField::new('nombre');
         yield TextEditorField::new('descripcion')->hideOnIndex();
         yield MoneyField::new('precio')->setCurrency('EUR')->setStoredAsCents(false);
         yield IntegerField::new('stock');
         yield AssociationField::new('categoria');
+        yield \EasyCorp\Bundle\EasyAdminBundle\Field\ImageField::new('imagen')
+            ->setBasePath('uploads/productos')
+            ->setUploadDir('public/uploads/productos')
+            ->setUploadedFileNamePattern('[randomhash].[extension]')
+            ->setRequired(false);
     }
 }
