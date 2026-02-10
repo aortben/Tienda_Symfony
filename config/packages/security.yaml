@@ -23,7 +23,7 @@ security:
                 login_path: app_login
                 check_path: app_login
                 enable_csrf: true
-                default_target_path: categorias # Cambia app_home por el nombre de tu ruta principal si falla
+                default_target_path: categorias 
                 always_use_default_target_path: true
             logout:
                 path: app_logout
