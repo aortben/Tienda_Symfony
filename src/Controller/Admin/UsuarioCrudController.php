@@ -34,6 +34,13 @@ class UsuarioCrudController extends AbstractCrudController
         ];
     }
     */
+    private \Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface $userPasswordHasher;
+
+    public function __construct(\Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface $userPasswordHasher)
+    {
+        $this->userPasswordHasher = $userPasswordHasher;
+    }
+
     public function configureFields(string $pageName): iterable
     {
         yield TextField::new('login', 'Usuario');
@@ -53,5 +60,28 @@ class UsuarioCrudController extends AbstractCrudController
             ->setFormType(\Symfony\Component\Form\Extension\Core\Type\PasswordType::class)
             ->setRequired($pageName === \EasyCorp\Bundle\EasyAdminBundle\Config\Crud::PAGE_NEW)
             ->onlyOnForms();
+    }
+
+    public function persistEntity(\Doctrine\ORM\EntityManagerInterface $entityManager, $entityInstance): void
+    {
+        $this->hashPassword($entityInstance);
+        parent::persistEntity($entityManager, $entityInstance);
+    }
+
+    public function updateEntity(\Doctrine\ORM\EntityManagerInterface $entityManager, $entityInstance): void
+    {
+        $this->hashPassword($entityInstance);
+        parent::updateEntity($entityManager, $entityInstance);
+    }
+
+    private function hashPassword($entity): void
+    {
+        if (!$entity instanceof Usuario) {
+            return;
+        }
+
+        if ($entity->getPlainPassword()) {
+            $entity->setPassword($this->userPasswordHasher->hashPassword($entity, $entity->getPlainPassword()));
+        }
     }
 }
