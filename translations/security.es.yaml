@@ -1,0 +1,6 @@
+"Invalid credentials.": "Credenciales inválidas. Por favor verifique su usuario y contraseña."
+"Email could not be found.": "No se encontró el correo electrónico."
+"Account is disabled.": "La cuenta está deshabilitada."
+"Account is locked.": "La cuenta está bloqueada."
+"Too many failed login attempts, please try again later.": "Demasiados intentos de inicio de sesión fallidos, por favor inténtelo de nuevo más tarde."
+"Invalid CSRF token.": "Token CSRF inválido."

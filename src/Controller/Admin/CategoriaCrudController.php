@@ -18,16 +18,18 @@ class CategoriaCrudController extends AbstractCrudController
         return Categoria::class;
     }
 
-    /*
     public function configureFields(string $pageName): iterable
     {
-        // Aquí podríamos personalizar qué campos se muestran en el formulario,
-        // pero por ahora dejamos que EasyAdmin lo configure automáticamente.
         return [
-            IdField::new('id'),
-            TextField::new('title'),
-            TextEditorField::new('description'),
+            IdField::new('id')->hideOnForm(),
+            TextField::new('codigo'),
+            TextField::new('nombre'),
         ];
     }
-    */
+
+    public function configureFilters(\EasyCorp\Bundle\EasyAdminBundle\Config\Filters $filters): \EasyCorp\Bundle\EasyAdminBundle\Config\Filters
+    {
+        return $filters
+            ->add('nombre');
+    }
 }

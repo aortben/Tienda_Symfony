@@ -39,7 +39,6 @@ final class BaseController extends AbstractController
     {
         $categoriaObjeto = $em->getRepository(Categoria::class)->find($categoria);
 
-        // Si intentan acceder a una categoría que no existe, lanzamos error 404.
         if (!$categoriaObjeto) {
             throw $this->createNotFoundException("La categoría no existe");
         }

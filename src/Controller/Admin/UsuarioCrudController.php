@@ -37,6 +37,9 @@ class UsuarioCrudController extends AbstractCrudController
     public function configureFields(string $pageName): iterable
     {
         yield TextField::new('email');
-        yield TextField::new('password');
+        yield TextField::new('plainPassword', 'Contraseña')
+            ->setFormType(\Symfony\Component\Form\Extension\Core\Type\PasswordType::class)
+            ->setRequired($pageName === \EasyCorp\Bundle\EasyAdminBundle\Config\Crud::PAGE_NEW)
+            ->onlyOnForms();
     }
 }

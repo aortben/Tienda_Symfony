@@ -33,13 +33,9 @@ class HasheoPassword implements EventSubscriberInterface
             return;
         }
 
-        $plainPassword = $entity->getPassword();
+        $plainPassword = $entity->getPlainPassword();
 
         if (!$plainPassword) {
-            return;
-        }
-
-        if (strlen($plainPassword) >= 60 && str_starts_with($plainPassword, '$2y$')) {
             return;
         }
 
@@ -49,5 +45,6 @@ class HasheoPassword implements EventSubscriberInterface
         );
 
         $entity->setPassword($hashedPassword);
+        $entity->setPlainPassword(null);
     }
 }
