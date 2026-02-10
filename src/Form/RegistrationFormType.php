@@ -40,6 +40,16 @@ class RegistrationFormType extends AbstractType
                     ]),
                 ],
             ])
+            ->add('phone', TextType::class, [
+                'label' => 'Teléfono',
+                'required' => false,
+                'constraints' => [
+                    new \Symfony\Component\Validator\Constraints\Regex([
+                        'pattern' => '/^[0-9]+$/',
+                        'message' => 'El teléfono solo puede contener números.',
+                    ]),
+                ],
+            ])
             ->add('agreeTerms', CheckboxType::class, [
                 'label' => 'Acepto los términos',
                 'mapped' => false,
