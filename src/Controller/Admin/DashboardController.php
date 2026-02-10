@@ -43,5 +43,7 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::linkToCrud('Producto', 'fas fa-list', Producto::class); // Gestión de productos
         yield MenuItem::linkToCrud('Categoria', 'fas fa-list', Categoria::class); // Gestión de categorías
         yield MenuItem::linkToCrud('Pedido', 'fas fa-list', Pedido::class); // Gestión de pedidos
+        yield MenuItem::section('Navegación');
+        yield MenuItem::linkToRoute('Volver a la Tienda', 'fa fa-home', 'categorias');// Para volver a categorías
     }
 }
