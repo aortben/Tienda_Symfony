@@ -16,7 +16,7 @@ class HomeController extends AbstractController
     #[Route('/', name: 'app_home')]
     public function index(CategoriaRepository $categoriaRepository): Response
     {
-        // Pillamos todas las categorías y se las pasamos a la vista para que el usuario elija por dónde empezar.
+        // Cogemos todas las categorías y se las pasamos a la vista para que el usuario elija por dónde empezar.
         return $this->render('categorias/mostrar_categorias.html.twig', [
             'categorias' => $categoriaRepository->findAll(),
         ]);

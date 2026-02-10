@@ -90,7 +90,6 @@ class Usuario implements UserInterface, PasswordAuthenticatedUserInterface
     public function getRoles(): array
     {
         $roles = $this->roles;
-        // guarantee every user at least has ROLE_USER
         $roles[] = 'ROLE_USER';
 
         return array_unique($roles);
@@ -134,10 +133,7 @@ class Usuario implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $this;
     }
-
-    /**
-     * Ensure the session doesn't contain actual password hashes by CRC32C-hashing them, as supported since Symfony 7.3.
-     */
+    
     public function __serialize(): array
     {
         $data = (array) $this;
@@ -149,7 +145,6 @@ class Usuario implements UserInterface, PasswordAuthenticatedUserInterface
     #[\Deprecated]
     public function eraseCredentials(): void
     {
-        // @deprecated, to be removed when upgrading to Symfony 8
     }
 
     public function getEmail(): ?string
@@ -197,7 +192,6 @@ class Usuario implements UserInterface, PasswordAuthenticatedUserInterface
     public function removePedido(Pedido $pedido): static
     {
         if ($this->pedidos->removeElement($pedido)) {
-            // set the owning side to null (unless already changed)
             if ($pedido->getUsuario() === $this) {
                 $pedido->setUsuario(null);
             }

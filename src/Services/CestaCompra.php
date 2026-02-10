@@ -64,7 +64,7 @@ class CestaCompra {
         }
     }
 
-    // Calcular coste TOTAL (Sin parámetros, usa los datos internos)
+    // Calcular coste TOTAL 
     public function calcular_coste(): float {
         $this->cargar_cesta();
         $costeTotal = 0;

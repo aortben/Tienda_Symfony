@@ -33,7 +33,6 @@ class RegistrationController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var string $plainPassword */
             $plainPassword = $form->get('plainPassword')->getData();
 
             // Hash de la contraseña. Nunca guardamos texto plano, seguridad ante todo.
@@ -51,7 +50,6 @@ class RegistrationController extends AbstractController
                     ->htmlTemplate('registration/confirmation_email.html.twig')
             );
 
-            // do anything else you need here, like send an email
 
             // Logueamos al usuario directamente tras registrarse, para que no tenga que meter sus datos otra vez.
             return $security->login($user, 'form_login', 'main');
@@ -68,9 +66,8 @@ class RegistrationController extends AbstractController
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
-        // validate email confirmation link, sets User::isVerified=true and persists
+        // Validamos el correo.
         try {
-            /** @var Usuario $user */
             $user = $this->getUser();
             $this->emailVerifier->handleEmailConfirmation($request, $user);
         } catch (VerifyEmailExceptionInterface $exception) {
@@ -79,7 +76,6 @@ class RegistrationController extends AbstractController
             return $this->redirectToRoute('app_register');
         }
 
-        // @TODO Change the redirect on success and handle or remove the flash message in your templates
         $this->addFlash('success', 'Tu dirección de correo ha sido verificada.');
 
         return $this->redirectToRoute('app_home');

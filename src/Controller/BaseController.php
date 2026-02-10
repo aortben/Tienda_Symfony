@@ -158,7 +158,6 @@ final class BaseController extends AbstractController
         return $this->redirectToRoute('cesta');
     }
 
-    // ¡El momento de la verdad! Crear el pedido y cobrar (bueno, simular que cobramos).
     #[Route('/pedido', name: 'pedido')]
     public function pedidos(CestaCompra $cesta, EntityManagerInterface $em, MailerInterface $mailer): Response
     {
@@ -175,18 +174,18 @@ final class BaseController extends AbstractController
             ]);
         }
 
-        // 1. Validaciones de stock y cálculo de precio real (nada de fiarse de la sesión).
+        // Validaciones de stock y cálculo de precio real.
         $costeTotalReal = 0;
         $productosParaProcesar = [];
 
         foreach ($productosSesion as $productoSesion) {
             $idProducto = $productoSesion->getId();
             
-            // Buscamos el producto en la base de datos para tener datos frescos.
+            // Buscamos el producto en la base de datos para tener datos nuevos.
             $productoReal = $em->getRepository(Producto::class)->find($idProducto);
 
             if (!$productoReal) {
-                // Ups, alguien borró el producto mientras comprabas.
+                // Si el producto no existe, lo eliminamos de la cesta.
                 $cesta->eliminar_producto($idProducto, $unidadesSesion[$idProducto]);
                 $this->addFlash('danger', 'Un producto de tu cesta ya no está disponible.');
                 return $this->redirectToRoute('cesta');
@@ -194,7 +193,7 @@ final class BaseController extends AbstractController
 
             $cantidad = $unidadesSesion[$idProducto] ?? 1;
 
-            // Segunda comprobación de Stock (CRÍTICA).
+            // Segunda comprobación de Stock.
             if ($productoReal->getStock() < $cantidad) {
                 $this->addFlash('danger', sprintf(
                     'No hay suficiente stock para %s. Disponible: %d, Solicitado: %d',
@@ -213,17 +212,16 @@ final class BaseController extends AbstractController
             ];
         }
 
-        // 2. Creamos el pedido "padre".
+        // Creamos el pedido.
         $pedido = new Pedido();
-        $pedido->setCoste($costeTotalReal); // Guardamos lo que ha costado de verdad HOY.
+        $pedido->setCoste($costeTotalReal); // Guardamos lo que ha costado en este momento.
         $pedido->setFecha(new \DateTime());
         $pedido->setUsuario($this->getUser());
 
         $em->persist($pedido);
 
-        // 3. Creamos las líneas del pedido y restamos stock.
+        // Creamos las líneas del pedido y restamos stock.
         foreach ($productosParaProcesar as $item) {
-            /** @var Producto $productoReal */
             $productoReal = $item['producto'];
             $cantidad = $item['cantidad'];
 
@@ -232,7 +230,7 @@ final class BaseController extends AbstractController
             $pedidoProducto->setProducto($productoReal);
             $pedidoProducto->setUnidades($cantidad);
             
-            // IMPORTANTE: Guardamos el precio al que se compró, por si sube mañana.
+            // Guardamos el precio al que se compró.
             $pedidoProducto->setPrecio($productoReal->getPrecio());
             
             // Actualizamos el stock disponible.
@@ -245,7 +243,7 @@ final class BaseController extends AbstractController
         // Guardamos todo en la base de datos de una vez.
         $em->flush();
         
-        // 4. Enviamos el correo de confirmación.
+        // Enviamos el correo de confirmación.
         try {
             $email = (new Email())
                 ->from('alvaroortegabenitez03@gmail.com')
@@ -259,11 +257,11 @@ final class BaseController extends AbstractController
 
             $mailer->send($email);
         } catch (\Exception $e) {
-            // Si falla el correo, no paramos la compra, solo lo registramos (si tuviéramos logger).
-            // $this->logger->error('Error enviando correo: ' . $e->getMessage());
+            // Si falla el correo, no paramos la compra.
+            
         }
 
-        // 5. Borrón y cuenta nueva: vaciamos la cesta.
+        // Vaciamos la cesta.
         $cesta->vaciar_cesta();
         
         $this->addFlash('success', 'Pedido realizado correctamente. Revisa tu email para la confirmación.');
