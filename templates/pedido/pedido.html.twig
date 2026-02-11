@@ -10,12 +10,6 @@
             <div class="card shadow-sm border-0">
                 <div class="card-body p-5 text-center">
 
-                    {# 
-                        Aquí jugamos con la variable 'error' que nos pasa el controlador.
-                        0 -> Todo perfecto, pedido realizado.
-                        1 -> La cesta estaba vacía, ¡mal!
-                        Otro -> Fallo técnico.
-                    #}
                     {% if error == 0 %}
                         <h1 class="display-6 fw-bold text-success mb-3">¡Pedido Confirmado!</h1>
                         <p class="lead text-muted mb-4">Tu pedido ha sido procesado correctamente.</p>
@@ -52,7 +46,6 @@
                         </div>
 
                     {% else %}
-                        {# ERROR #}
                         <h2 class="fw-bold text-danger mb-3">Error en el Pedido</h2>
                         <p class="text-muted mb-4">
                             Ocurrió un error técnico al procesar tu solicitud. Por favor, inténtalo de nuevo.
