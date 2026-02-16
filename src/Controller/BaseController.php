@@ -281,25 +281,19 @@ final class BaseController extends AbstractController
         ]);
     }
     
-    // Historial de pedidos del usuario.
     #[Route('/historial', name: 'historial')] 
-    public function historial(ManagerRegistry $doctrine): Response
+    public function historial(): Response
     {
         $user = $this->getUser();
         
-        // Comprobación de seguridad extra (aunque el firewall ya debería bloquear).
         if (!$user) {
             return $this->redirectToRoute('login');
         }
 
-        // Buscamos los pedidos ordenados del más reciente al más antiguo.
-        $pedidos = $doctrine->getRepository(Pedido::class)->findBy(
-            ['usuario' => $user], 
-            ['fecha' => 'DESC']
-        );
-
+        // Ahora accedemos directamente a la relación.
+        // Gracias al OrderBy de la entidad, ya vienen ordenados.
         return $this->render('pedido/historial.html.twig', [
-            'pedidos' => $pedidos
+            'pedidos' => $user->getPedidos()
         ]);
     }
 }

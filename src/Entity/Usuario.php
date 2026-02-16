@@ -174,7 +174,9 @@ class Usuario implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @return Collection<int, Pedido>
      */
+    #[ORM\OrderBy(['fecha' => 'DESC'])]
     public function getPedidos(): Collection
+   
     {
         return $this->pedidos;
     }
